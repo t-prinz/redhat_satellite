@@ -1,0 +1,9 @@
+---
+# This is the activation key and organization ID that will be used to register the Satellite server with the Red Hat portal
+
+satellite_rhsm_activation_key: "my_rhsm_activation_key"
+satellite_rhsm_organization_id: "1234567"
+
+satellite_server_url: "https://sat.example.com"
+satellite_username: "admin"
+satellite_password: ""

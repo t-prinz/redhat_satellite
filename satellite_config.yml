@@ -1,0 +1,57 @@
+---
+- name: Ensure Satellite systems are configured
+  hosts: localhost
+  vars:
+    satellite_cred_vars: ""
+    satellite_config_vars: ""
+
+  tasks:
+    - name: Include Satellite credentials variables file
+      include_vars:
+        file: "{{ satellite_cred_vars }}"
+
+    - name: Include Satellite configuration variables file
+      include_vars:
+        file: "{{ satellite_config_vars }}"
+
+    - name: Print Satellite installation parameters
+      debug:
+        msg: "{{ inventory_hostname }}, {{ satellite_username }}, {{ satellite_password }}, {{ satellite_organization }}, {{ satellite_location }} {{ satellite_manifest_path }}"
+        verbosity: 1
+
+    - name: Ensure manifest is installed
+      include_role:
+        name: redhat.satellite.manifest
+
+    - name: Ensure products are selected
+      include_role:
+        name: redhat.satellite.repositories
+
+    - name: Synchronize repositories; wait for up to two hours (leave out repository specification to sync all repositories)
+      redhat.satellite.repository_sync:
+        username: "{{ satellite_username }}"
+        password: "{{ satellite_password}}"
+        server_url: "{{ satellite_server_url }}"
+        product: "Red Hat Enterprise Linux for x86_64"
+#        repository: "Red Hat Satellite Tools 6.9 for RHEL 8 x86_64 RPMs"
+        organization: "{{ satellite_organization }}"
+        validate_certs: no
+      async: 7200
+      poll: 60
+
+    - name: Ensure Lifecycles are created
+      include_role:
+        name: redhat.satellite.lifecycle_environments
+
+    - name: Ensure Content Views are created
+      include_role:
+        name: redhat.satellite.content_views
+
+    - name: Loop over all the content views/filter definitions and ensure they are created and published
+      include_tasks:
+        file: files/content_view_loop_tasks.yml
+      loop: "{{ satellite_content_views_to_publish }}"
+
+    - name: Ensure Activation Keys are created
+      include_role:
+        name: redhat.satellite.activation_keys

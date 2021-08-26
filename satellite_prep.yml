@@ -1,0 +1,96 @@
+---
+- name: Ensure Satellite systems are registered with access to required repositories, the firewall is set up, and the base software is installed
+  hosts: all
+  become: True
+  vars:
+    satellite_cred_vars: ""
+
+  tasks:
+    - name: Include Satellite credentials variables file
+      include_vars:
+        file: "{{ satellite_cred_vars }}"
+
+    - name: Ensure RHSM registration
+      include_role:
+        name: rhportal_reg
+      vars:
+        rhsm_activation_key: "{{ satellite_rhsm_activation_key }}"
+        rhsm_organization_id: "{{ satellite_rhsm_organization_id }}"
+        rhsm_repo_list:
+          - rhel-7-server-rpms
+          - rhel-7-server-satellite-6.9-rpms
+          - rhel-7-server-satellite-maintenance-6-rpms
+          - rhel-server-rhscl-7-rpms
+          - rhel-7-server-ansible-2.9-rpms
+          - rhel-7-server-extras-rpms
+
+    - name: Ensure firewalld is installed
+      package:
+        name: firewalld
+        state: installed
+
+    - name: Ensure firewalld is enabled and started
+      service:
+        name: firewalld
+        enabled: True
+        state: started
+
+    - name: Ensure firewall ports are open
+      ansible.posix.firewalld:
+        immediate: True
+        permanent: True
+        port: "{{ item }}"
+        state: enabled
+      with_items:
+        - "53/udp"
+        - "53/tcp"
+        - "67/udp"
+        - "69/udp"
+        - "80/tcp"
+        - "443/tcp"
+        - "5000/tcp"
+        - "5647/tcp"
+        - "8000/tcp"
+        - "8140/tcp"
+        - "9090/tcp"
+
+    - name: Ensure RHEL release version is not set
+      command: "subscription-manager release --unset"
+      args:
+        warn: No
+
+    - name: Ensure kernel is up-to-date; if so a reboot will occur
+      package:
+        name: kernel
+        state: latest
+      register: kernel_status
+
+    - name: Reboot server if needed
+      include_role:
+        name: myreboot
+      vars:
+        myreboot_timeout: 240
+      when: kernel_status.changed
+
+    - name: Ensure all packages are updated
+      package:
+        name: '*'
+        state: latest
+
+    - name: Ensure Satellite and other required software is installed (RHEL system roles and screen not strictly required)
+      package:
+        name: "{{ satellite_sw_list }}"
+        state: latest
+      vars:
+        satellite_sw_list:
+          - satellite
+          - chrony
+          - sos
+          - rhel-system-roles
+          - screen
+
+    - name: Ensure chronyd is enabled and started
+      service:
+        name: chronyd
+        enabled: True
+        state: started

@@ -1,5 +1,23 @@
-ansible-galaxy role install -r roles/requirements.yml
-ansible-galaxy collection install -r collections/requirements.yml
+# Ansible playbooks to manage Red Hat Satellite
+
+These playbooks can be used to install and configure a Satellite server.  If the Satellite server is already setup, the satellite_config.yml playbook can be used to make configuration changes.
+
+Two variables files need to be modified.  The playbooks search the vars/ directory but they can be specified using variables, as shown in the examples below
+
+    Credentials file
+      Default file                  :  vars/satellite_cred_vars.yml
+      Example file                  :  vars/satellite_cred_vars.example.yml
+      Variable to specify (optional):  satellite_cred_vars
+
+    Configuration file
+      Default file                  :  vars/satellite_config_vars.yml
+      Example file                  :  vars/satellite_config_vars.example.yml
+      Variable to specify (optional):  satellite_config_vars
+
+If using Ansible from the command line, install the roles and collections:
+
+`ansible-galaxy role install -r roles/requirements.yml`
+`ansible-galaxy collection install -r collections/requirements.yml`
 
 The following workflow shows how these playbooks can be used to set up a Satellite server.
 

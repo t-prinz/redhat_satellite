@@ -1,0 +1,51 @@
+---
+- name: Ensure Satellite is installed
+  hosts: all
+  become: True
+  vars:
+    satellite_cred_vars: ""
+    satellite_config_vars: ""
+
+  tasks:
+    - name: Include Satellite credentials variables file
+      include_vars:
+        file: "{{ satellite_cred_vars }}"
+
+    - name: Include Satellite configuration variables file
+      include_vars:
+        file: "{{ satellite_config_vars }}"
+
+    - name: Print Satellite installation parameters
+      debug:
+        msg: "{{ inventory_hostname }}, {{ satellite_username }}, {{ satellite_password }}, {{ satellite_organization }}, {{ satellite_location }} {{ satellite_manifest_path }}"
+        verbosity: 1
+
+#    - name: Install Satellite
+#      include_role:
+#        name: redhat.satellite_operations.installer
+#      vars:
+#        satellite_installer_scenario: "satellite"
+#        satellite_installer_options:
+#          - "--foreman-initial-organization {{ satellite_organization }}"
+#          - "--foreman-initial-location {{ satellite_location }}"
+#          - "--foreman-initial-admin-username {{ satellite_username }}"
+#          - "--foreman-initial-admin-password {{ satellite_password }}"
+#      register: satellite_install_output
+
+    - name: Install Satellite; wait for up to an hour to complete
+      command: "satellite-installer --scenario satellite --foreman-initial-organization {{ satellite_organization }} --foreman-initial-location {{ satellite_location }} --foreman-initial-admin-username {{ satellite_username }} --foreman-initial-admin-password {{ satellite_password }}"
+      register: satellite_install_output
+      ignore_errors: yes
+      async: 3600
+      poll: 60
+
+    - name: Print installation output
+      debug:
+        var: satellite_install_output
+        verbosity: 1
+
+    - name: Check on installation and fail the play if the installation failed
+      debug:
+        msg: "Satellite installation failed; failing play"
+      when: satellite_install_output.failed
+      failed_when: satellite_install_output.failed

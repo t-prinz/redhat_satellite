@@ -1,0 +1,143 @@
+---
+satellite_organization: "Acme"
+satellite_location: "Austin"
+satellite_manifest_path: your-manifest-file.zip
+satellite_validate_certs: False
+
+# This list defines the repositories that will be synchronized
+
+satellite_products:
+  - name: Red Hat Enterprise Linux for x86_64
+    repository_sets:
+      - name: Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)
+        releasever: 8
+      - name: Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)
+        releasever: 8
+      - name: Red Hat Satellite Tools 6.9 for RHEL 8 x86_64 (RPMs)
+
+# This list defines 3 lifecycle environments that will be created
+
+satellite_lifecycle_environments:
+  - name: "Dev"
+    description: "Development environment"
+    prior: "Library"
+  - name: "Test"
+    description: "Test environment"
+    prior: "Dev"
+  - name: "Prod"
+    description: "Production environment"
+    prior: "Test"
+
+# This list defines a single Content View along with the included repositories
+
+satellite_content_views:
+  - name: RHEL-8-Base-CV
+    repositories:
+      - name: Red Hat Enterprise Linux 8 for x86_64 - AppStream RPMs 8
+        product: Red Hat Enterprise Linux for x86_64
+      - name: Red Hat Enterprise Linux 8 for x86_64 - BaseOS RPMs 8
+        product: Red Hat Enterprise Linux for x86_64
+      - name: Red Hat Satellite Tools 6.9 for RHEL 8 x86_64 RPMs
+        product: Red Hat Enterprise Linux for x86_64
+
+# This list defines 3 Content Views to publish; each Content View can have a list of filters applied
+#   The first does not have any filters applied
+#   The second has 2 filters applied
+#   The third also has 2 filters applied but the date of the Exclude filter is updated
+
+satellite_content_views_to_publish:
+  - organization: "{{ satellite_organization }}"
+    password: "{{ satellite_password }}"
+    server_url: "{{ satellite_server_url }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs }}"
+    content_view: RHEL-8-Base-CV
+    description: "Initial publish; unfiltered"
+    lifecycle_environments:
+      - Library
+    state: present
+    version: "1.0"
+  - organization: "{{ satellite_organization }}"
+    password: "{{ satellite_password }}"
+    server_url: "{{ satellite_server_url }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs }}"
+    content_view: RHEL-8-Base-CV
+    description: "2021-04 Update - all packages, errata excluded starting 2021-05-01"
+    lifecycle_environments:
+      - Library
+      - Dev
+      - Test
+      - Prod
+    state: present
+    version: "2.0"
+    content_view_filters:
+      - architecture: "*"
+        description: Specifies all packages
+        filter_state: present
+        filter_type: rpm
+        inclusion: yes
+        name: "All packages"
+        original_packages: yes
+        package_name: "*"
+        rule_name: "*"
+        rule_state: present
+      - date_type: updated
+        description: Exclude errata after a given date
+        filter_state: present
+        filter_type: erratum
+        inclusion: no
+        name: Errata-To-Date
+        rule_state: present
+        start_date: "2021-05-01"
+        types:
+          - bugfix
+          - enhancement
+          - security
+  - organization: "{{ satellite_organization }}"
+    password: "{{ satellite_password }}"
+    server_url: "{{ satellite_server_url }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs }}"
+    content_view: RHEL-8-Base-CV
+    description: "2021-05 Update - all packages, errata excluded starting 2021-06-01"
+    lifecycle_environments:
+      - Library
+      - Dev
+    state: present
+    version: "3.0"
+    content_view_filters:
+      - date_type: updated
+        description: Exclude errata after a given date
+        filter_state: present
+        filter_type: erratum
+        inclusion: no
+        name: Errata-To-Date
+        rule_state: present
+        start_date: "2021-06-01"
+        types:
+          - bugfix
+          - enhancement
+          - security
+
+# This list defines 3 Activation Keys
+
+satellite_activation_keys:
+  - name: "RHEL-8-Dev-AK"
+    lifecycle_environment: "Dev"
+    content_view: "RHEL-8-Base-CV"
+    content_overrides:
+      - label: "satellite-tools-6.9-for-rhel-8-x86_64-rpms"
+        override: enabled
+  - name: "RHEL-8-Test-AK"
+    lifecycle_environment: "Test"
+    content_view: "RHEL-8-Base-CV"
+    content_overrides:
+      - label: "satellite-tools-6.9-for-rhel-8-x86_64-rpms"
+        override: enabled
+  - name: "RHEL-8-Prod-AK"
+    lifecycle_environment: "Prod"
+    content_view: "RHEL-8-Base-CV"
+    content_overrides:
+      - label: "satellite-tools-6.9-for-rhel-8-x86_64-rpms"
+        override: enabled
