@@ -4,19 +4,25 @@ These playbooks can be used to install and configure a Satellite server.  If the
 
 ### Prerequisites
 
-1.  Two variables files need to be modified.  The playbooks search the vars/ directory but they can be specified using variables, as shown in the examples below
+* These playbooks make use of the Red Hat "redhat.satellite" collection, which is available via the Ansible Automation Platform (which requires a subscription).
+
+    If the playbooks are run via the command line and ansible-galaxy is used to install the collections (as shown in the examples), the ansible-galaxy client must be configured.  The documentation showing how to do this can be found [here](https://docs.ansible.com/ansible/latest/galaxy/user_guide.html#configuring-the-ansible-galaxy-client):
+
+    If the playbooks are run via Ansible Tower, an Ansible Galaxy credential must be created and configured for the Organization.  The documentation showing how to do this can be found [here](https://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html?extIdCarryOver=true&intcmp=701f2000001OEH1AAO&sc_cid=701f2000000u72fAAA#using-collections-in-tower).
+
+    *In either case, credentials for Ansible Automation Hub are required; these credentials can be found [here](https://console.redhat.com/ansible/automation-hub/token):*
+        
+* Two variables files need to be created; examples of each are given in the vars/ directory.  Note that the playbooks do not automatically search the vars/ directory, so the variables must be specified (see below for an example)
 
         Credentials file
-          Default file                  :  vars/satellite_cred_vars.yml
           Example file                  :  vars/satellite_cred_vars.example.yml
-          Variable to specify (optional):  satellite_cred_vars
+          Variable to specify (required):  satellite_cred_vars
 
         Configuration file
-          Default file                  :  vars/satellite_config_vars.yml
           Example file                  :  vars/satellite_config_vars.example.yml
-          Variable to specify (optional):  satellite_config_vars
+          Variable to specify (required):  satellite_config_vars
 
-2.  If using Ansible from the command line, install the roles and collections:
+* If using Ansible from the command line, install the roles and collections using the following commands.
 
         ansible-galaxy role install -r roles/requirements.yml
         ansible-galaxy collection install -r collections/requirements.yml
