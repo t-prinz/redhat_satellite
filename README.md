@@ -12,7 +12,7 @@ These playbooks can be used to install and configure a Satellite server.  If the
 
     *In either case, credentials for Ansible Automation Hub are required; these credentials can be found [here](https://console.redhat.com/ansible/automation-hub/token).*
         
-* Two variables files need to be created; examples of each are given in the vars/ directory.  Note that the playbooks do not automatically search the vars/ directory, so the variables must be specified (see below for an example)
+* Two variables files need to be created; examples of each are given in the vars/ directory.  Note that the playbooks do not automatically search the vars/ directory, so the variables must be specified (see below for an example):
 
         Credentials file
           Example file                  :  vars/satellite_cred_vars.example.yml
