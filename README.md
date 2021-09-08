@@ -6,11 +6,11 @@ These playbooks can be used to install and configure a Satellite server.  If the
 
 * These playbooks make use of the Red Hat "redhat.satellite" collection, which is available via the Ansible Automation Platform (which requires a subscription).
 
-    If the playbooks are run via the command line and ansible-galaxy is used to install the collections (as shown in the examples), the ansible-galaxy client must be configured.  The documentation showing how to do this can be found [here](https://docs.ansible.com/ansible/latest/galaxy/user_guide.html#configuring-the-ansible-galaxy-client):
+    If the playbooks are run via the command line and ansible-galaxy is used to install the collections (as shown in the examples), the ansible-galaxy client must be configured.  The documentation showing how to do this can be found [here](https://docs.ansible.com/ansible/latest/galaxy/user_guide.html#configuring-the-ansible-galaxy-client).
 
     If the playbooks are run via Ansible Tower, an Ansible Galaxy credential must be created and configured for the Organization.  The documentation showing how to do this can be found [here](https://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html?extIdCarryOver=true&intcmp=701f2000001OEH1AAO&sc_cid=701f2000000u72fAAA#using-collections-in-tower).
 
-    *In either case, credentials for Ansible Automation Hub are required; these credentials can be found [here](https://console.redhat.com/ansible/automation-hub/token):*
+    *In either case, credentials for Ansible Automation Hub are required; these credentials can be found [here](https://console.redhat.com/ansible/automation-hub/token).*
         
 * Two variables files need to be created; examples of each are given in the vars/ directory.  Note that the playbooks do not automatically search the vars/ directory, so the variables must be specified (see below for an example)
 
