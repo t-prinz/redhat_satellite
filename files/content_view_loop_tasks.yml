@@ -2,6 +2,7 @@
 - name: Running tasks inside of the loop
   debug:
     msg: "Working on {{ item }}"
+    verbosity: 1
 
 - name: Define all of the Content View filters
   debug:

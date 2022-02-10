@@ -1,19 +1,20 @@
 ---
 - name: Ensure Satellite is installed
-  hosts: all
+#  hosts: all
+  hosts: "{{ hostlist | default('all') }}"
   become: True
-  vars:
-    satellite_cred_vars: ""
-    satellite_config_vars: ""
+#  vars:
+#    satellite_cred_vars: ""
+#    satellite_config_vars: ""
 
   tasks:
-    - name: Include Satellite credentials variables file
-      include_vars:
-        file: "{{ satellite_cred_vars }}"
+#    - name: Include Satellite credentials variables file
+#      include_vars:
+#        file: "{{ satellite_cred_vars }}"
 
-    - name: Include Satellite configuration variables file
-      include_vars:
-        file: "{{ satellite_config_vars }}"
+#    - name: Include Satellite configuration variables file
+#      include_vars:
+#        file: "{{ satellite_config_vars }}"
 
     - name: Print Satellite installation parameters
       debug:

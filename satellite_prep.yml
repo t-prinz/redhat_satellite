@@ -1,23 +1,27 @@
 ---
 - name: Ensure Satellite systems are registered with access to required repositories, the firewall is set up, and the base software is installed
-  hosts: all
+#  hosts: all
+  hosts: "{{ hostlist | default('all') }}"
   become: True
-  vars:
-    satellite_cred_vars: ""
+#  vars:
+#    satellite_cred_vars: ""
 
   tasks:
-    - name: Include Satellite credentials variables file
-      include_vars:
-        file: "{{ satellite_cred_vars }}"
+#    - name: Include Satellite credentials variables file
+#      include_vars:
+#        file: "{{ satellite_cred_vars }}"
+
+    - name: print activation key
+      debug:
+        var: satellite_rhsm_activation_key
 
     - name: Ensure RHSM registration
       include_role:
         name: rhportal_reg
       vars:
-        rhsm_activation_key: "{{ satellite_rhsm_activation_key }}"
-        rhsm_organization_id: "{{ satellite_rhsm_organization_id }}"
-        rhsm_repo_list:
-          - rhel-7-server-rpms
+        rhportal_reg_rhsm_activation_key: "{{ satellite_rhsm_activation_key }}"
+        rhportal_reg_rhsm_organization_id: "{{ satellite_rhsm_organization_id }}"
+        rhportal_reg_rhsm_supplemental_repo_list:
           - rhel-7-server-satellite-6.9-rpms
           - rhel-7-server-satellite-maintenance-6-rpms
           - rhel-server-rhscl-7-rpms
