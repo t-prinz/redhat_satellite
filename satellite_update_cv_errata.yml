@@ -45,7 +45,8 @@
             description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
             lifecycle_environments: "{{ satellite_target_lifecycle_environments }}"
             state: present
-            version: "{{ satellite_exclude_start_date }}"
+#            version: "{{ satellite_exclude_start_date }}"
+            version: "4.0"
             content_view_filters:
               - date_type: updated
                 description: Exclude errata after a given date
