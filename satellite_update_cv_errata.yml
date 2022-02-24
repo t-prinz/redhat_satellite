@@ -1,7 +1,6 @@
 ---
 - name: Update a Content View with all errata up to a specified date and publish to a set of environments
-#  hosts: "{{ hostlist | default('all') }}"
-  hosts: localhost
+  hosts: "{{ hostlist | default('all') }}"
   vars:
     satellite_exclude_start_date: "2021-07-01"
     satellite_target_lifecycle_environments:
@@ -10,22 +9,7 @@
 
   tasks:
     - name: Define variable
-      set_fact:
-        satellite_content_views_to_publish:
-          - organization:
-              - Library
-              - Dev:
-          - organization: "org 2"
-      when: satellite_exclude_start_date is defined and satellite_exclude_start_date|length > 0
-
-#    - name: do the cv
-#      debug:
-#        var: satellite_content_views_to_publish
-#      when: satellite_content_views_to_publish is defined
-
-    - name: Define variable
-      set_fact:
-        satellite_content_views_to_publish:
+      set_fact: satellite_content_views_to_publish:
           - description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
             lifecycle_environments: "{{ satellite_target_lifecycle_environments }}"
             state: present
