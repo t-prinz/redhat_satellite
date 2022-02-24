@@ -61,7 +61,7 @@
                   - security
       when: satellite_exclude_start_date is defined and satellite_exclude_start_date|length > 0
 
-    - name: Loop over all the content views/filter definitions and ensure they are created and published
+    - name: Print Content View information
       debug:
         var: item
       loop: "{{ satellite_content_views_to_publish }}"
