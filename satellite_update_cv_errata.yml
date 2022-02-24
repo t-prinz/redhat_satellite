@@ -67,8 +67,8 @@
       loop: "{{ satellite_content_views_to_publish }}"
       when: satellite_content_views_to_publish is defined
 
-#    - name: Loop over all the content views/filter definitions and ensure they are created and published
-#      include_tasks:
-#        file: files/content_view_loop_tasks.yml
-#      loop: "{{ satellite_content_views_to_publish }}"
-#      when: satellite_content_views_to_publish is defined
+    - name: Loop over all the content views/filter definitions and ensure they are created and published
+      include_tasks:
+        file: files/content_view_loop_tasks.yml
+      loop: "{{ satellite_content_views_to_publish }}"
+      when: satellite_content_views_to_publish is defined
