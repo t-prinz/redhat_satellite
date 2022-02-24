@@ -8,6 +8,10 @@
       - Dev
 
   tasks:
+    - name: Print the filter date
+      debug:
+        msg: "Specified date is {{ satellite_exclude_start_date }}"
+
     - name: Define variable
       set_fact: satellite_content_views_to_publish:
           - description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
