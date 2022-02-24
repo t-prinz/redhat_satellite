@@ -12,37 +12,9 @@
       debug:
         msg: "Specified date is {{ satellite_exclude_start_date }}"
 
-    - name: Define variable
-      set_fact: satellite_content_views_to_publish:
-          - description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
-            lifecycle_environments: "{{ satellite_target_lifecycle_environments }}"
-            state: present
-            version: "{{ satellite_exclude_start_date }}"
-            content_view_filters:
-              - date_type: updated
-                description: Exclude errata after a given date
-                filter_state: present
-                filter_type: erratum
-                inclusion: no
-                name: Errata-To-Date
-                rule_state: present
-                start_date: "{{ satellite_exclude_start_date }}"
-                types:
-                  - bugfix
-                  - enhancement
-                  - security
-      when: satellite_exclude_start_date is defined and satellite_exclude_start_date|length > 0
-
 #    - name: Define variable
-#      set_fact:
-#        satellite_content_views_to_publish:
-#          - organization: "{{ satellite_organization }}"
-#            password: "{{ satellite_password }}"
-#            server_url: "{{ satellite_server_url }}"
-#            username: "{{ satellite_username }}"
-#            validate_certs: "{{ satellite_validate_certs }}"
-#            content_view: "{{ satellite_content_view }}"
-#            description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
+#      set_fact: satellite_content_views_to_publish:
+#          - description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
 #            lifecycle_environments: "{{ satellite_target_lifecycle_environments }}"
 #            state: present
 #            version: "{{ satellite_exclude_start_date }}"
@@ -60,6 +32,34 @@
 #                  - enhancement
 #                  - security
 #      when: satellite_exclude_start_date is defined and satellite_exclude_start_date|length > 0
+
+    - name: Define variable
+      set_fact:
+        satellite_content_views_to_publish:
+          - organization: "{{ satellite_organization }}"
+            password: "{{ satellite_password }}"
+            server_url: "{{ satellite_server_url }}"
+            username: "{{ satellite_username }}"
+            validate_certs: "{{ satellite_validate_certs }}"
+            content_view: "{{ satellite_content_view }}"
+            description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
+            lifecycle_environments: "{{ satellite_target_lifecycle_environments }}"
+            state: present
+            version: "{{ satellite_exclude_start_date }}"
+            content_view_filters:
+              - date_type: updated
+                description: Exclude errata after a given date
+                filter_state: present
+                filter_type: erratum
+                inclusion: no
+                name: Errata-To-Date
+                rule_state: present
+                start_date: "{{ satellite_exclude_start_date }}"
+                types:
+                  - bugfix
+                  - enhancement
+                  - security
+      when: satellite_exclude_start_date is defined and satellite_exclude_start_date|length > 0
 
     - name: Loop over all the content views/filter definitions and ensure they are created and published
       debug:
