@@ -69,11 +69,15 @@
         state: latest
       register: kernel_status
 
+#    - name: Reboot server if needed
+#      include_role:
+#        name: myreboot
+#      vars:
+#        myreboot_timeout: 240
+#      when: kernel_status.changed
+
     - name: Reboot server if needed
-      include_role:
-        name: myreboot
-      vars:
-        myreboot_timeout: 240
+      ansible.builtin.reboot:
       when: kernel_status.changed
 
     - name: Ensure all packages are updated
