@@ -3,7 +3,8 @@
 #  hosts: all
   hosts: "{{ hostlist | default('all') }}"
   become: True
-#  vars:
+  vars:
+    satellite_version: "6.9"
 #    satellite_cred_vars: ""
 
   tasks:
@@ -22,11 +23,11 @@
         rhportal_reg_rhsm_activation_key: "{{ satellite_rhsm_activation_key }}"
         rhportal_reg_rhsm_organization_id: "{{ satellite_rhsm_organization_id }}"
         rhportal_reg_rhsm_supplemental_repo_list:
-          - rhel-7-server-satellite-6.9-rpms
-          - rhel-7-server-satellite-maintenance-6-rpms
-          - rhel-server-rhscl-7-rpms
-          - rhel-7-server-ansible-2.9-rpms
-          - rhel-7-server-extras-rpms
+          - "rhel-7-server-satellite-{{ satellite_version }}-rpms"
+          - "rhel-7-server-satellite-maintenance-6-rpms"
+          - "rhel-server-rhscl-7-rpms"
+          - "rhel-7-server-ansible-2.9-rpms"
+          - "rhel-7-server-extras-rpms"
 
     - name: Ensure firewalld is installed
       package:
