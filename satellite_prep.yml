@@ -30,7 +30,8 @@
           - "rhel-7-server-extras-rpms"
 
     - name: Ensure firewalld is installed
-      package:
+      ansible.builtin.yum:
+#      package:
         name: firewalld
         state: installed
 
@@ -65,7 +66,8 @@
         warn: No
 
     - name: Ensure kernel is up-to-date; if so a reboot will occur
-      package:
+      ansible.builtin.yum:
+#      package:
         name: kernel
         state: latest
       register: kernel_status
@@ -82,12 +84,14 @@
       when: kernel_status.changed
 
     - name: Ensure all packages are updated
-      package:
+      ansible.builtin.yum:
+#      package:
         name: '*'
         state: latest
 
     - name: Ensure Satellite and other required software is installed (RHEL system roles and screen not strictly required)
-      package:
+      ansible.builtin.yum:
+#      package:
         name: "{{ satellite_sw_list }}"
         state: latest
       vars:
