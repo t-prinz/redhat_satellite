@@ -1,16 +1,11 @@
 ---
 - name: Ensure Satellite systems are registered with access to required repositories, the firewall is set up, and the base software is installed
-#  hosts: all
   hosts: "{{ hostlist | default('all') }}"
   become: True
   vars:
-    satellite_version: "6.9"
-#    satellite_cred_vars: ""
+    satellite_version: "6.10"
 
   tasks:
-#    - name: Include Satellite credentials variables file
-#      include_vars:
-#        file: "{{ satellite_cred_vars }}"
 
     - name: print activation key
       debug:
@@ -31,7 +26,6 @@
 
     - name: Ensure firewalld is installed
       ansible.builtin.yum:
-#      package:
         name: firewalld
         state: installed
 
@@ -67,17 +61,9 @@
 
     - name: Ensure kernel is up-to-date; if so a reboot will occur
       ansible.builtin.yum:
-#      package:
         name: kernel
         state: latest
       register: kernel_status
-
-#    - name: Reboot server if needed
-#      include_role:
-#        name: myreboot
-#      vars:
-#        myreboot_timeout: 240
-#      when: kernel_status.changed
 
     - name: Reboot server if needed
       ansible.builtin.reboot:
@@ -85,13 +71,11 @@
 
     - name: Ensure all packages are updated
       ansible.builtin.yum:
-#      package:
         name: '*'
         state: latest
 
     - name: Ensure Satellite and other required software is installed (RHEL system roles and screen not strictly required)
       ansible.builtin.yum:
-#      package:
         name: "{{ satellite_sw_list }}"
         state: latest
       vars:
