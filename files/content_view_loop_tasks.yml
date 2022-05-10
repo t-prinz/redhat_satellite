@@ -44,7 +44,8 @@
     loop_var: filter_item
 
 
-- name: Publish and promote the Content View; wait for up to 30 minutes (specify the version to ensure this task is idempotent)
+#- name: Publish and promote the Content View; wait for up to 30 minutes (specify the version to ensure this task is idempotent)
+- name: Publish and promote the Content View (specify the version to ensure this task is idempotent)
   redhat.satellite.content_view_version:
     content_view: "{{ item.content_view }}"
     current_lifecycle_environment: "{{ item.current_lifecycle_environment | default(omit) }}"
