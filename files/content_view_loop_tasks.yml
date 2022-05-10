@@ -66,3 +66,4 @@
 - name: Print Content View information
   debug:
     msg: "{{ cv_version_output }}"
+    verbosity: 1
