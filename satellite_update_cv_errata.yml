@@ -6,6 +6,7 @@
     satellite_target_lifecycle_environments:
       - Library
       - Dev
+      - Test
 
   tasks:
     - name: Print the filter date
