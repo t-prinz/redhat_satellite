@@ -59,5 +59,10 @@
     username: "{{ satellite_username }}"
     validate_certs: "{{ satellite_validate_certs | default(omit) }}"
     version: "{{ item.version | default(omit) }}"
+  register: cv_version_output
   async: 1800
   poll: 60
+
+- name: Print Content View information
+  debug:
+    msg: "{{ cv_version_output }}"
