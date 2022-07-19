@@ -3,11 +3,18 @@
   hosts: "{{ hostlist | default('all') }}"
   become: True
   vars:
-    satellite_version: "6.10"
+    satellite_version: "6.11"
+    rhel_7_satellite_versions:
+      - "6.8"
+      - "6.9"
+      - "6.10"
+#      - "6.11"
+    rhel_8_satellite_versions:
+      - "6.11"
 
   tasks:
 
-    - name: Ensure RHSM registration
+    - name: Ensure RHSM registration and repos enabled for Satellite 6.9/6.10 and RHEL 7
       include_role:
         name: rhportal_reg
       vars:
@@ -19,6 +26,24 @@
           - "rhel-server-rhscl-7-rpms"
           - "rhel-7-server-ansible-2.9-rpms"
           - "rhel-7-server-extras-rpms"
+      when: ansible_facts.distribution is defined and ansible_facts.distribution == "RedHat" and ansible_facts.distribution_major_version is defined and ansible_facts.distribution_major_version == "7" and satellite_version in rhel_7_satellite_versions
+
+    - name: Block for Satellite 6.11 and RHEL 8
+      block:
+
+        - name: Ensure RHSM registration and repos enabled for RHEL 8
+          include_role:
+            name: rhportal_reg
+          vars:
+            rhportal_reg_rhsm_supplemental_repo_list:
+              - "satellite-{{ satellite_version }}-for-rhel-8-x86_64-rpms"
+              - "satellite-maintenance-{{ satellite_version }}-for-rhel-8-x86_64-rpms"
+
+        - name: Enable the Satellite module
+          command:
+            cmd: "dnf module enable satellite:el8"
+
+      when: ansible_facts.distribution is defined and ansible_facts.distribution == "RedHat" and ansible_facts.distribution_major_version is defined and ansible_facts.distribution_major_version == "8" satellite_version in rhel_8_satellite_versions
 
     - name: Ensure firewalld is installed
       ansible.builtin.yum:
