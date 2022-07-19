@@ -7,7 +7,7 @@
 
   tasks:
 
-    - name: Ensure RHSM registration and repos enabled for Satellite 6.9/6.10 and RHEL 7
+    - name: Ensure RHSM registration and repos enabled for Satellite 6.8/6.9/6.10/6.11 and RHEL 7 (6.11 not tested)
       include_role:
         name: rhportal_reg
       vars:
