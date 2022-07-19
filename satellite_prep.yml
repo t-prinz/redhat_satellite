@@ -98,7 +98,7 @@
           - chrony
           - sos
           - rhel-system-roles
-          - screen
+#          - screen
 
     - name: Ensure chronyd is enabled and started
       service:
