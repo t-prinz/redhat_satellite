@@ -12,7 +12,7 @@ These playbooks can be used to install and configure a Satellite server.  If the
 
     *In either case, credentials for Ansible Automation Hub are required; these credentials can be found [here](https://console.redhat.com/ansible/automation-hub/token).*
         
-* In a previous version, the playbooks referenced two variables that, in turn, referenced two files that held the variables controlling the exeuction of the playbooks.  These variables are no longer used; instead, the playbooks expect the variables to be defined as part of the inventory.
+* In a previous version (tag v0.9), the playbooks referenced two variables that, in turn, referenced two files that held the variables controlling the exeuction of the playbooks.  These variables are no longer used; instead, the playbooks expect the variables to be defined as part of the inventory.
 
 * If using Ansible from the command line, install the roles and collections using the following commands.
 
