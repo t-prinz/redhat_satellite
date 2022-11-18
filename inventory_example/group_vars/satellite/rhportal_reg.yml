@@ -3,7 +3,3 @@
 
 satellite_rhsm_activation_key: "my_rhsm_activation_key"
 satellite_rhsm_organization_id: "1234567"
-
-satellite_server_url: "https://sat.example.com"
-satellite_username: "admin"
-satellite_password: ""

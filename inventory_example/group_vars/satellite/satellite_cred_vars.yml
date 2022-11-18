@@ -1,0 +1,6 @@
+---
+# satellite_server_url should not need to be defined; it is defined as ansible_host in the playbooks
+#satellite_server_url: "https://sat.example.com"
+
+satellite_username: "admin"
+satellite_password: ""

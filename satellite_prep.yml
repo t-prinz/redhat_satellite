@@ -3,28 +3,45 @@
   hosts: "{{ hostlist | default('all') }}"
   become: True
   vars:
-    satellite_version: "6.11"
+    satellite_version: "6.12"
 
   tasks:
 
-    - name: Ensure RHSM registration and repos enabled for Satellite 6.8/6.9/6.10/6.11 and RHEL 7 (6.11 not tested)
-      include_role:
-        name: rhportal_reg
-      vars:
-#        rhportal_reg_rhsm_activation_key: "{{ satellite_rhsm_activation_key }}"
-#        rhportal_reg_rhsm_organization_id: "{{ satellite_rhsm_organization_id }}"
-        rhportal_reg_rhsm_supplemental_repo_list:
-          - "rhel-7-server-satellite-{{ satellite_version }}-rpms"
-          - "rhel-7-server-satellite-maintenance-6-rpms"
-          - "rhel-server-rhscl-7-rpms"
-          - "rhel-7-server-ansible-2.9-rpms"
-          - "rhel-7-server-extras-rpms"
+    - name: Block for Satellite 6.8/6.9/6.10/6.11 and RHEL 7 (6.11 not tested)
+      block:
+
+        - name: Ensure system is registered with RHSM and that the proper repos are enabled for RHEL 7
+          include_role:
+            name: rhportal_reg
+          vars:
+            rhportal_reg_rhsm_supplemental_repo_list:
+              - "rhel-7-server-satellite-{{ satellite_version }}-rpms"
+              - "rhel-7-server-satellite-maintenance-6-rpms"
+              - "rhel-server-rhscl-7-rpms"
+              - "rhel-7-server-ansible-2.9-rpms"
+              - "rhel-7-server-extras-rpms"
+
+        - name: Define incoming firewall ports to open
+          set_fact:
+            satellite_incoming_firewall_ports:
+              - "53/udp"
+              - "53/tcp"
+              - "67/udp"
+              - "69/udp"
+              - "80/tcp"
+              - "443/tcp"
+              - "5000/tcp"
+              - "5647/tcp"
+              - "8000/tcp"
+              - "8140/tcp"
+              - "9090/tcp"
+
       when: ansible_facts.distribution is defined and ansible_facts.distribution == "RedHat" and ansible_facts.distribution_major_version is defined and ansible_facts.distribution_major_version == "7"
 
     - name: Block for Satellite 6.11 and RHEL 8
       block:
 
-        - name: Ensure RHSM registration and repos enabled for RHEL 8
+        - name: Ensure system is registered with RHSM and that the proper repos are enabled for RHEL 8
           include_role:
             name: rhportal_reg
           vars:
@@ -35,6 +52,20 @@
         - name: Enable the Satellite module
           command:
             cmd: "dnf module enable -y satellite:el8"
+
+        - name: Define incoming firewall ports to open
+          set_fact:
+            satellite_incoming_firewall_ports:
+              - "53/udp"
+              - "53/tcp"
+              - "67/udp"
+              - "69/udp"
+              - "80/tcp"
+              - "443/tcp"
+              - "5647/tcp"
+              - "8000/tcp"
+              - "8140/tcp"
+              - "9090/tcp"
 
       when: ansible_facts.distribution is defined and ansible_facts.distribution == "RedHat" and ansible_facts.distribution_major_version is defined and ansible_facts.distribution_major_version == "8"
 
@@ -55,18 +86,7 @@
         permanent: True
         port: "{{ item }}"
         state: enabled
-      with_items:
-        - "53/udp"
-        - "53/tcp"
-        - "67/udp"
-        - "69/udp"
-        - "80/tcp"
-        - "443/tcp"
-        - "5000/tcp"
-        - "5647/tcp"
-        - "8000/tcp"
-        - "8140/tcp"
-        - "9090/tcp"
+      with_items: "{{ satellite_incoming_firewall_ports }}"
 
     - name: Ensure RHEL release version is not set
       command: "subscription-manager release --unset"
