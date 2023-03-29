@@ -4,7 +4,7 @@
 
   tasks:
 
-    - name: Run this on localhost but pickup the host_vars associated with the specified inventory_hostname
+    - name: Configure various components on the Satellite server
       block:
 
         - name: Print Satellite installation parameters
