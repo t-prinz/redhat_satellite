@@ -1,5 +1,6 @@
 ---
 - name: Update a Content View with all errata up to a specified date and publish to a set of environments
+  gather_facts: false
   hosts: "{{ hostlist | default('all') }}"
   vars:
     satellite_exclude_start_date: ""
