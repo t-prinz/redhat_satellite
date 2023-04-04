@@ -3,6 +3,7 @@
   hosts: "{{ hostlist | default('all') }}"
   vars:
     satellite_exclude_start_date: ""
+    satellite_content_view: ""
     satellite_target_lifecycle_environments:
       - Library
       - Dev
@@ -12,6 +13,13 @@
 
     - name: Run this on localhost but pickup the host_vars associated with the specified inventory_hostname
       block:
+
+        - name: Verify that satellite_exclude_start_date and satellite_content_view are defined
+          ansible.builtin.assert:
+            fail_msg: "satellite_exclude_start_date and satellite_content_view must be defined"
+            that:
+              - satellite_exclude_start_date is defined and satellite_exclude_start_date|length > 0
+              - satellite_content_view is defined and satellite_content_view|length > 0
 
         - name: Ensure the Satellite server name is defined
           set_fact:
@@ -35,6 +43,7 @@
                 validate_certs: "{{ satellite_validate_certs }}"
                 content_view: "{{ satellite_content_view }}"
                 description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
+                force_promote: True
                 lifecycle_environments: "{{ satellite_target_lifecycle_environments }}"
                 state: present
 #                version: "{{ satellite_exclude_start_date }}"

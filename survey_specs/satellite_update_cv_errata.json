@@ -1,0 +1,29 @@
+{
+  "description": "",
+  "spec": [
+    {
+      "required": true,
+      "min": null,
+      "default": "RHEL-7-Base-CV",
+      "max": null,
+      "question_description": "Enter the name of the Content View to update",
+      "choices": "RHEL-7-Base-CV\nRHEL-8-Base-CV\nRHEL-9-Base-CV",
+      "new_question": true,
+      "variable": "satellite_content_view",
+      "question_name": "Enter the Content View Name",
+      "type": "multiplechoice"
+    },
+    {
+      "required": true,
+      "min": 0,
+      "default": "",
+      "max": 10,
+      "question_description": "Enter the date after which errata should be excluded.  Use the format YYYY-MM-DD.",
+      "new_question": true,
+      "variable": "satellite_exclude_start_date",
+      "question_name": "Enter Errata Exclusion Start Date",
+      "type": "text"
+    }
+  ],
+  "name": ""
+}
