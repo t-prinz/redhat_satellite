@@ -3,6 +3,17 @@
   "spec": [
     {
       "required": true,
+      "min": 0,
+      "default": "",
+      "max": 160,
+      "question_description": "Enter the name of the Satellite server",
+      "new_question": true,
+      "variable": "hostlist",
+      "question_name": "Enter the Satellite hostname",
+      "type": "text"
+    },
+    {
+      "required": true,
       "min": null,
       "default": "RHEL-7-Base-CV",
       "max": null,
