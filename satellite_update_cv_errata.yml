@@ -35,7 +35,8 @@
         - name: Define satellite_exclude_start_date as the current date if not specified
           set_fact:
             satellite_exclude_start_date: "{{ ansible_date_time.date }}"
-          when: satellite_exclude_start_date is not defined or satellite_exclude_start_date|length == 0
+          when: satellite_exclude_start_date|length == 0
+#          when: satellite_exclude_start_date is not defined or satellite_exclude_start_date|length == 0
 
         - name: Print
           debug:
