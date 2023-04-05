@@ -25,14 +25,14 @@
       "type": "multiplechoice"
     },
     {
-      "required": true,
+      "required": false,
       "min": 0,
       "default": "",
       "max": 10,
       "question_description": "Enter the date after which errata should be excluded.  Use the format YYYY-MM-DD.",
       "new_question": true,
       "variable": "satellite_exclude_start_date",
-      "question_name": "Enter Errata Exclusion Start Date using YYYY-MM-DD",
+      "question_name": "Enter Errata Exclusion Start Date using the format YYYY-MM-DD.  Leave this field blank to use today's date",
       "type": "text"
     }
   ],
