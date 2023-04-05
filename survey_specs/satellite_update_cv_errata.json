@@ -32,7 +32,7 @@
       "question_description": "Enter the date after which errata should be excluded.  Use the format YYYY-MM-DD.",
       "new_question": true,
       "variable": "satellite_exclude_start_date",
-      "question_name": "Enter Errata Exclusion Start Date",
+      "question_name": "Enter Errata Exclusion Start Date using YYYY-MM-DD",
       "type": "text"
     }
   ],

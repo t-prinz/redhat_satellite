@@ -15,12 +15,17 @@
     - name: Run this on localhost but pickup the host_vars associated with the specified inventory_hostname
       block:
 
-        - name: Verify that satellite_exclude_start_date and satellite_content_view are defined
-          ansible.builtin.assert:
-            fail_msg: "satellite_exclude_start_date and satellite_content_view must be defined"
-            that:
-              - satellite_exclude_start_date is defined and satellite_exclude_start_date|length > 0
-              - satellite_content_view is defined and satellite_content_view|length > 0
+        - name: Gather facts
+          gather_facts:
+
+        - name: Define satellite_exclude_start_date as the current date if not specified
+          set_fact:
+            satellite_exclude_start_date: "{{ ansible_date_time.date }}"
+          when: satellite_exclude_start_date is not defined or satellite_exclude_start_date|length == 0
+
+        - name: Print
+          debug:
+            msg: "Errata after {{ satellite_exclude_start_date }} will be excluded"
 
         - name: Ensure the Satellite server name is defined
           set_fact:
