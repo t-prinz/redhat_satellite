@@ -20,20 +20,8 @@
 
         - name: Print date information
           debug:
-            var: ansible_date_time
-#            verbosity: 1
-
-        - name: print length
-          debug:
-            msg: "length is {{ satellite_exclude_start_date|length }}"
-
-        - name: set tmp fact
-          set_fact:
-            current_date: "{{ ansible_date_time.date }}"
-
-        - name: print tmp fact
-          debug:
-            var: current_date
+            msg: "Current date is {{ ansible_date_time.date }}"
+            verbosity: 1
 
         - name: Print verification that current date will be used
           debug:
@@ -42,10 +30,8 @@
 
         - name: Define satellite_exclude_start_date as the current date if not specified
           set_fact:
-            satellite_exclude_start_date: "{{ current_date }}"
-#            satellite_exclude_start_date: "{{ ansible_date_time.date }}"
+            satellite_exclude_start_date: "{{ ansible_date_time.date }}"
           when: satellite_exclude_start_date|length == 0
-#          when: satellite_exclude_start_date is not defined or satellite_exclude_start_date|length == 0
 
         - name: Print
           debug:
@@ -99,10 +85,10 @@
           loop: "{{ satellite_content_views_to_publish }}"
           when: satellite_content_views_to_publish is defined
 
-#        - name: Loop over all the content views/filter definitions and ensure they are created and published
-#          include_tasks:
-#            file: files/content_view_loop_tasks.yml
-#          loop: "{{ satellite_content_views_to_publish }}"
-#          when: satellite_content_views_to_publish is defined
+        - name: Loop over all the content views/filter definitions and ensure they are created and published
+          include_tasks:
+            file: files/content_view_loop_tasks.yml
+          loop: "{{ satellite_content_views_to_publish }}"
+          when: satellite_content_views_to_publish is defined
 
       delegate_to: localhost
