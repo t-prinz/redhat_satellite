@@ -18,6 +18,11 @@
         - name: Gather facts
           gather_facts:
 
+        - name: Print date information
+          debug:
+            var: ansible_date_time
+#            verbosity: 1
+
         - name: Define satellite_exclude_start_date as the current date if not specified
           set_fact:
             satellite_exclude_start_date: "{{ ansible_date_time.date }}"
