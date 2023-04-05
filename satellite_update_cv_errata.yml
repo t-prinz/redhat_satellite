@@ -23,6 +23,10 @@
             var: ansible_date_time
 #            verbosity: 1
 
+        - name: print length
+          debug:
+            msg: "length is {{ satellite_exclude_start_date|length }}"
+
         - name: Print verification that current date will be used
           debug:
             msg: "Using current date: errata after {{ ansible_date_time.date }} will be excluded"
