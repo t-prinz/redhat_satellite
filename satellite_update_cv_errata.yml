@@ -23,6 +23,11 @@
             var: ansible_date_time
 #            verbosity: 1
 
+        - name: Print verification that current date will be used
+          debug:
+            msg: "Using current date: errata after {{ ansible_date_time.date }} will be excluded"
+          when: satellite_exclude_start_date is not defined or satellite_exclude_start_date|length == 0
+
         - name: Define satellite_exclude_start_date as the current date if not specified
           set_fact:
             satellite_exclude_start_date: "{{ ansible_date_time.date }}"
