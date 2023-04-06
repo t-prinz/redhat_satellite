@@ -16,6 +16,12 @@
       delegate_to: localhost
       block:
 
+        - name: Error out if the Content View is not specified
+          ansible.builtin.assert:
+            fail_msg: "The Content View must be specified"
+            that:
+              - satellite_content_view | length > 0
+
         - name: Block to handle case where satellite_exclude_start_date is not specified
           when: satellite_exclude_start_date | length == 0
           block:
