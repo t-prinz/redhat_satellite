@@ -13,44 +13,37 @@
   tasks:
 
     - name: Run this on localhost but pickup the host_vars associated with the specified inventory_hostname
+      delegate_to: localhost
       block:
 
-        - name: Gather facts
-          gather_facts:
+        - name: Block to handle case where satellite_exclude_start_date is not specified
+          when: satellite_exclude_start_date | length == 0
+          block:
+            - name: Gather facts
+              ansible.builtin.gather_facts:
 
-        - name: Print date information
-          debug:
-            msg: "Current date is {{ ansible_date_time.date }}"
-            verbosity: 1
+            - name: Print current date information if exclude start date is not specified
+              ansible.builtin.debug:
+                msg: "Exclude start date not specified; current date of {{ ansible_date_time.date }} will be used"
 
-        - name: Print verification that current date will be used
-          debug:
-            msg: "Using current date: errata after {{ ansible_date_time.date }} will be excluded"
-          when: satellite_exclude_start_date is not defined or satellite_exclude_start_date|length == 0
+        - name: Set the filter filter_start_date
+          ansible.builtin.set_fact:
+            filter_start_date: "{{ ansible_date_time.date if (satellite_exclude_start_date | length == 0) else satellite_exclude_start_date }}"
 
-        - name: Define satellite_exclude_start_date as the current date if not specified
-          set_fact:
-            satellite_exclude_start_date: "{{ ansible_date_time.date }}"
-          when: satellite_exclude_start_date|length == 0
-
-        - name: Print
-          debug:
-            msg: "Errata after {{ satellite_exclude_start_date }} will be excluded"
+        - name: Print exclude filter start date
+          ansible.builtin.debug:
+            msg: "Errata after {{ filter_start_date }} will be excluded"
 
         - name: Ensure the Satellite server name is defined
-          set_fact:
+          ansible.builtin.set_fact:
             satellite_server_url: "https://{{ ansible_host }}"
 
         - name: Print Satellite server connection information
-          debug:
+          ansible.builtin.debug:
             msg: "Configuring Satellite server at {{ satellite_server_url }}"
 
-        - name: Print the filter date
-          debug:
-            msg: "Specified date is {{ satellite_exclude_start_date }}"
-
         - name: Define variable
-          set_fact:
+          ansible.builtin.set_fact:
             satellite_content_views_to_publish:
               - organization: "{{ satellite_organization }}"
                 password: "{{ satellite_password }}"
@@ -58,37 +51,34 @@
                 username: "{{ satellite_username }}"
                 validate_certs: "{{ satellite_validate_certs }}"
                 content_view: "{{ satellite_content_view }}"
-                description: "All packages, errata excluded starting {{ satellite_exclude_start_date }}"
-                force_promote: True
+                description: "All packages, errata excluded starting {{ filter_start_date }}"
+                force_promote: true
                 lifecycle_environments: "{{ satellite_target_lifecycle_environments }}"
                 state: present
-#                version: "{{ satellite_exclude_start_date }}"
+#                version: "{{ filter_start_date }}"
 #                version: "4.0"
                 content_view_filters:
                   - date_type: updated
                     description: Exclude errata after a given date
                     filter_state: present
                     filter_type: erratum
-                    inclusion: no
+                    inclusion: false
                     name: Errata-To-Date
                     rule_state: present
-                    start_date: "{{ satellite_exclude_start_date }}"
+                    start_date: "{{ filter_start_date }}"
                     types:
                       - bugfix
                       - enhancement
                       - security
-          when: satellite_exclude_start_date is defined and satellite_exclude_start_date|length > 0
 
         - name: Print Content View information
-          debug:
+          ansible.builtin.debug:
             var: item
           loop: "{{ satellite_content_views_to_publish }}"
           when: satellite_content_views_to_publish is defined
 
         - name: Loop over all the content views/filter definitions and ensure they are created and published
-          include_tasks:
+          ansible.builtin.include_tasks:
             file: files/content_view_loop_tasks.yml
           loop: "{{ satellite_content_views_to_publish }}"
           when: satellite_content_views_to_publish is defined
-
-      delegate_to: localhost

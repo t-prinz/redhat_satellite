@@ -1,11 +1,11 @@
 ---
 - name: Running tasks inside of the loop
-  debug:
+  ansible.builtin.debug:
     msg: "Working on {{ item }}"
     verbosity: 1
 
 - name: Define all of the Content View filters
-  debug:
+  ansible.builtin.debug:
     msg: "Going to define content view filter {{ filter_item.architecture if (filter_item.architecture is defined) else ('None') }}"
   when: item.content_view_filters is defined
   loop: "{{ item.content_view_filters }}"
@@ -44,7 +44,7 @@
     loop_var: filter_item
 
 
-#- name: Publish and promote the Content View; wait for up to 30 minutes (specify the version to ensure this task is idempotent)
+# - name: Publish and promote the Content View; wait for up to 30 minutes (specify the version to ensure this task is idempotent)
 - name: Publish and promote the Content View (specify the version to ensure this task is idempotent)
   redhat.satellite.content_view_version:
     content_view: "{{ item.content_view }}"
@@ -65,6 +65,6 @@
 #  poll: 60
 
 - name: Print Content View information
-  debug:
+  ansible.builtin.debug:
     msg: "{{ cv_version_output }}"
     verbosity: 1
