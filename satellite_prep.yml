@@ -1,7 +1,7 @@
 ---
 - name: Ensure Satellite systems are registered with access to required repositories, the firewall is set up, and the base software is installed
   hosts: "{{ hostlist | default('all') }}"
-  become: True
+  become: true
   vars:
     satellite_version: "6.13"
 
@@ -11,7 +11,7 @@
       block:
 
         - name: Ensure system is registered with RHSM and that the proper repos are enabled for RHEL 7
-          include_role:
+          ansible.builtin.include_role:
             name: rhportal_reg
           vars:
             rhportal_reg_rhsm_supplemental_repo_list:
@@ -22,7 +22,7 @@
               - "rhel-7-server-extras-rpms"
 
         - name: Define incoming firewall ports to open
-          set_fact:
+          ansible.builtin.set_fact:
             satellite_incoming_firewall_ports:
               - "53/udp"
               - "53/tcp"
@@ -42,7 +42,7 @@
       block:
 
         - name: Ensure system is registered with RHSM and that the proper repos are enabled for RHEL 8
-          include_role:
+          ansible.builtin.include_role:
             name: rhportal_reg
           vars:
             rhportal_reg_rhsm_supplemental_repo_list:
@@ -50,11 +50,11 @@
               - "satellite-maintenance-{{ satellite_version }}-for-rhel-8-x86_64-rpms"
 
         - name: Enable the Satellite module
-          command:
+          ansible.builtin.command:
             cmd: "dnf module enable -y satellite:el8"
 
         - name: Define incoming firewall ports to open
-          set_fact:
+          ansible.builtin.set_fact:
             satellite_incoming_firewall_ports:
               - "53/udp"
               - "53/tcp"
@@ -75,7 +75,7 @@
         state: installed
 
     - name: Ensure firewalld is enabled and started
-      service:
+      ansible.builtin.service:
         name: firewalld
         enabled: True
         state: started
@@ -89,7 +89,7 @@
       with_items: "{{ satellite_incoming_firewall_ports }}"
 
     - name: Ensure RHEL release version is not set
-      command: "subscription-manager release --unset"
+      ansible.builtin.command: "subscription-manager release --unset"
       args:
         warn: No
 
@@ -121,7 +121,7 @@
 #          - screen
 
     - name: Ensure chronyd is enabled and started
-      service:
+      ansible.builtin.service:
         name: chronyd
         enabled: True
         state: started

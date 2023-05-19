@@ -1,13 +1,12 @@
 ---
 - name: Ensure Satellite is installed
-#  hosts: all
   hosts: "{{ hostlist | default('all') }}"
-  become: True
+  become: true
 
   tasks:
 
     - name: Print Satellite installation parameters
-      debug:
+      ansible.builtin.debug:
         msg: "{{ inventory_hostname }}, {{ satellite_username }}, {{ satellite_password }}, {{ satellite_organization }}, {{ satellite_location }} {{ satellite_manifest_path }}"
         verbosity: 1
 
@@ -24,19 +23,19 @@
 #      register: satellite_install_output
 
     - name: Install Satellite; wait for up to an hour to complete
-      command: "satellite-installer --scenario satellite --foreman-initial-organization {{ satellite_organization }} --foreman-initial-location {{ satellite_location }} --foreman-initial-admin-username {{ satellite_username }} --foreman-initial-admin-password {{ satellite_password }}"
+      ansible.builtin.command: "satellite-installer --scenario satellite --foreman-initial-organization {{ satellite_organization }} --foreman-initial-location {{ satellite_location }} --foreman-initial-admin-username {{ satellite_username }} --foreman-initial-admin-password {{ satellite_password }}"
       register: satellite_install_output
       ignore_errors: yes
       async: 3600
       poll: 60
 
     - name: Print installation output
-      debug:
+      ansible.builtin.debug:
         var: satellite_install_output
         verbosity: 1
 
     - name: Check on installation and fail the play if the installation failed
-      debug:
+      ansible.builtin.debug:
         msg: "Satellite installation failed; failing play"
       when: satellite_install_output.failed
       failed_when: satellite_install_output.failed
