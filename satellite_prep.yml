@@ -90,8 +90,8 @@
 
     - name: Ensure RHEL release version is not set
       ansible.builtin.command: "subscription-manager release --unset"
-      args:
-        warn: No
+#      args:
+#        warn: No
 
     - name: Ensure kernel is up-to-date; if so a reboot will occur
       ansible.builtin.yum:
