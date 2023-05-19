@@ -3,7 +3,7 @@
   hosts: "{{ hostlist | default('all') }}"
   become: True
   vars:
-    satellite_version: "6.12"
+    satellite_version: "6.13"
 
   tasks:
 
@@ -38,7 +38,7 @@
 
       when: ansible_facts.distribution is defined and ansible_facts.distribution == "RedHat" and ansible_facts.distribution_major_version is defined and ansible_facts.distribution_major_version == "7"
 
-    - name: Block for Satellite 6.11 and RHEL 8
+    - name: Block for Satellite 6.11+ and RHEL 8
       block:
 
         - name: Ensure system is registered with RHSM and that the proper repos are enabled for RHEL 8

@@ -2,3 +2,5 @@
 collections:
 - name: redhat.satellite
 - name: redhat.satellite_operations
+- name: ansible.posix
+- name: community.general
