@@ -4,9 +4,9 @@
     msg: "Working on {{ item }}"
     verbosity: 1
 
-- name: Define all of the Content View filters
+- name: Print all of the Content View filter names
   ansible.builtin.debug:
-    msg: "Going to define content view filter {{ filter_item.architecture if (filter_item.architecture is defined) else ('None') }}"
+    msg: "Going to define content view filter {{ filter_item.name if (filter_item.name is defined) else ('None') }}"
   when: item.content_view_filters is defined
   loop: "{{ item.content_view_filters }}"
   loop_control:
