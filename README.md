@@ -58,4 +58,8 @@ Once the product is identified, list all repository_sets with
 
 Once the repository_set is identified, list the repositories with
 
+    hammer repository list --product "Red Hat Enterprise Linux Server" --organization Acme
+
+As an aside, the available repositories in a repository_set can be shown with
+
     hammer repository-set available-repositories --product "Red Hat Enterprise Linux Server" --organization Acme --name "Red Hat Enterprise Linux 7 Server (RPMs)"
