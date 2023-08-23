@@ -45,3 +45,17 @@ This playbook will configure the Satellite server
     ansible-playbook -i ${INVENTORY} \
                      -l ${SATELLITE_SERVER} \
                      satellite_config.yml
+
+### Determining the products, repository_sets, and repositories
+
+To list all products:
+
+    hammer product list --organization Acme
+
+Once the product is identified, list all repository_sets with
+
+    hammer repository-set list --product "Red Hat Enterprise Linux Server" --organization Acme
+
+Once the repository_set is identified, list the repositories with
+
+    hammer repository-set available-repositories --product "Red Hat Enterprise Linux Server" --organization Acme --name "Red Hat Enterprise Linux 7 Server (RPMs)"
