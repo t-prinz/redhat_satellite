@@ -56,10 +56,76 @@ Once the product is identified, list all repository_sets with
 
     hammer repository-set list --product "Red Hat Enterprise Linux Server" --organization Acme
 
-Once the repository_set is identified, list the repositories with
+Once the repository_set is identified, list all of the available repositories with
+
+    hammer repository-set available-repositories --product "Red Hat Enterprise Linux Server" --organization Acme --name "Red Hat Enterprise Linux 7 Server (RPMs)"
+
+Take note of the output, since this will determine whether the 'basearch' and/or 'releasever' parameters will need to be specified.  For example, the output of the previous command produces this table
+
+
+NAME                                     | ARCH   | RELEASE | ENABLED
+-----------------------------------------|--------|---------|--------
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7Server | yes    
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.9     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.8     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.7     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.6     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.5     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.4     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.3     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.2     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.1     | no     
+Red Hat Enterprise Linux 7 Server (RPMs) | x86_64 | 7.0     | no     
+
+
+Since both ARCH and RELEASE are defined, they need to be specified in the product definition, for example:
+
+    satellite_products:
+      - name: Red Hat Enterprise Linux Server
+        repository_sets:
+          - name: Red Hat Enterprise Linux 7 Server (RPMs)
+            basearch: x86_64
+            releasever: "7Server"
+
+For RHEL 8, the output looks as follows:
+
+    hammer repository-set available-repositories --product "Red Hat Enterprise Linux for x86_64" --organization Acme --name "Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)"
+
+    
+NAME                                                  | RELEASE | ENABLED
+------------------------------------------------------|---------|--------
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8       | yes    
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.8     | no     
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.7     | no     
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.6     | no     
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.5     | no     
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.4     | no     
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.3     | no     
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.2     | no     
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.1     | no     
+Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs) | 8.0     | no     
+
+
+In this case, only 'releasever' needs to be specified:
+
+    satellite_products:
+      - name: Red Hat Enterprise Linux for x86_64
+        repository_sets:
+          - name: Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)
+            releasever: 8
+
+Once the repository_set is identified and enabled, list the repositories with
 
     hammer repository list --product "Red Hat Enterprise Linux Server" --organization Acme
 
-As an aside, the available repositories in a repository_set can be shown with
+These repository names are used in the Content View definition:
 
-    hammer repository-set available-repositories --product "Red Hat Enterprise Linux Server" --organization Acme --name "Red Hat Enterprise Linux 7 Server (RPMs)"
+    satellite_content_views:
+      - name: RHEL-7-Base-CV
+        repositories:
+          - name: Red Hat Enterprise Linux 7 Server RPMs x86_64 7Server
+            product: Red Hat Enterprise Linux Server
+          - name: Red Hat Enterprise Linux 7 Server - Extras RPMs x86_64
+            product: Red Hat Enterprise Linux Server
+          - name: Red Hat Satellite Client 6 for RHEL 7 Server RPMs x86_64
+            product: Red Hat Enterprise Linux Server
