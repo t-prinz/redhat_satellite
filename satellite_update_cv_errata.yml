@@ -80,6 +80,7 @@
         - name: Print Content View information
           ansible.builtin.debug:
             var: item
+            verbosity: 1
           loop: "{{ satellite_content_views_to_publish }}"
           when: satellite_content_views_to_publish is defined
 
