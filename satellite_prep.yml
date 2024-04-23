@@ -3,7 +3,7 @@
   hosts: "{{ hostlist | default('all') }}"
   become: true
   vars:
-    satellite_version: "6.13"
+    satellite_version: "6.14"
 
   tasks:
 
