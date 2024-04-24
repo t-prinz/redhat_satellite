@@ -3,7 +3,7 @@
   hosts: "{{ hostlist | default('all') }}"
   become: true
   vars:
-    satellite_version: "6.14"
+    satellite_version: "6.15"
 
   tasks:
 
@@ -66,6 +66,7 @@
               - "8000/tcp"
               - "8140/tcp"
               - "9090/tcp"
+              - "1883/tcp"
 
       when: ansible_facts.distribution is defined and ansible_facts.distribution == "RedHat" and ansible_facts.distribution_major_version is defined and ansible_facts.distribution_major_version == "8"
 
