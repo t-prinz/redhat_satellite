@@ -1,0 +1,43 @@
+---
+# Loop variable for the Content View is content_view_item
+# Loop variable for the filter is filter_item
+
+- name: Running tasks to define all of the rules associated with a filter
+  ansible.builtin.debug:
+    msg: "Working on Content View {{ content_view_item.content_view }}, filter {{ filter_item.name }}"
+#    verbosity: 1
+
+- name: Print all of the Content View filter rule names
+  ansible.builtin.debug:
+    msg: "Going to define content view filter rule {{ rule_item.name if (rule_item.name is defined) else ('None') }}"
+  when: filter_item.rules is defined
+  loop: "{{ filter_item.rules }}"
+  loop_control:
+    loop_var: rule_item
+
+- name: Define all of the Content View filter rules
+  redhat.satellite.content_view_filter_rule:
+    architecture: "{{ rule_item.architecture | default(omit) }}"
+    content_view: "{{ content_view_item.content_view }}"
+    content_view_filter: "{{ filter_item.name }}"
+    context: "{{ rule_item.context | default(omit) }}"
+    date_type: "{{ rule_item.date_type | default(omit) }}"
+    end_date: "{{ rule_item.end_date | default(omit) }}"
+    errata_id: "{{ rule_item.errata_id | default(omit) }}"
+    max_version: "{{ rule_item.max_version | default(omit) }}"
+    min_version: "{{ rule_item.min_version | default(omit) }}"
+    name: "{{ rule_item.name }}"
+    organization: "{{ content_view_item.organization }}"
+    password: "{{ satellite_password }}"
+    server_url: "{{ satellite_server_url }}"
+    start_date: "{{ rule_item.start_date | default(omit) }}"
+    state: "{{ rule_item.state | default('present') }}"
+    stream: "{{ rule_item.stream | default(omit) }}"
+    types: "{{ rule_item.types | default(omit) }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs | default(omit) }}"
+    version: "{{ rule_item.version | default(omit) }}"
+  when: filter_item.rules is defined
+  loop: "{{ filter_item.rules }}"
+  loop_control:
+    loop_var: rule_item

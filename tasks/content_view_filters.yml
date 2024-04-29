@@ -1,0 +1,72 @@
+---
+# Loop variable for the Content View is content_view_item
+
+- name: Running tasks to define all of the filters associated with a Content View
+  ansible.builtin.debug:
+    msg: "Working on Content View {{ content_view_item.content_view }}"
+#    verbosity: 1
+
+- name: Print all of the Content View filter names
+  ansible.builtin.debug:
+    msg: "Going to define content view filter {{ filter_item.name if (filter_item.name is defined) else ('None') }}"
+  when: content_view_item.filters is defined
+  loop: "{{ content_view_item.filters }}"
+  loop_control:
+    loop_var: filter_item
+
+- name: Define all of the Content View filters
+  redhat.satellite.content_view_filter:
+    content_view: "{{ content_view_item.content_view }}"
+    description: "{{ filter_item.description | default(omit) }}"
+    filter_type: "{{ filter_item.filter_type }}"
+    inclusion: "{{ filter_item.inclusion | default(omit) }}"
+    name: "{{ filter_item.name }}"
+    organization: "{{ content_view_item.organization }}"
+    original_module_streams: "{{ filter_item.original_module_streams | default(omit) }}"
+    original_packages: "{{ filter_item.original_packages | default(omit) }}"
+    password: "{{ satellite_password }}"
+    repositories: "{{ filter_item.repositories | default(omit) }}"
+    server_url: "{{ satellite_server_url }}"
+    state: "{{ filter_item.state | default('present') }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs | default(omit) }}"
+  when: content_view_item.filters is defined
+  loop: "{{ content_view_item.filters }}"
+  loop_control:
+    loop_var: filter_item
+
+# This adds all of the rules associated with the filter, if specified.  Note that "RPM" and "Container image tag"
+# filters have rules associated with them.
+
+- name: Loop to add all of the rules associated with each filter in a Content View
+  ansible.builtin.include_tasks:
+    file: tasks/content_view_filter_rules.yml
+  when: content_view_item.filters is defined
+  loop: "{{ content_view_item.filters }}"
+  loop_control:
+    loop_var: filter_item
+
+# - name: Publish and promote the Content View; wait for up to 30 minutes (specify the version to ensure this task is idempotent)
+- name: Publish and promote the Content View (specify the version to ensure this task is idempotent)
+  redhat.satellite.content_view_version:
+    content_view: "{{ content_view_item.content_view }}"
+    current_lifecycle_environment: "{{ content_view_item.current_lifecycle_environment | default(omit) }}"
+    description: "{{ content_view_item.description | default(omit) }}"
+    force_promote: "{{ content_view_item.force_promote | default(omit) }}"
+    force_yum_metadata_regeneration: "{{ content_view_item.force_yum_metadata_regeneration | default(omit) }}"
+    lifecycle_environments: "{{ content_view_item.lifecycle_environments | default(omit) }}"
+    organization: "{{ content_view_item.organization }}"
+    password: "{{ satellite_password }}"
+    server_url: "{{ satellite_server_url }}"
+    state: "{{ content_view_item.state | default(omit) }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs | default(omit) }}"
+    version: "{{ content_view_item.version | default(omit) }}"
+  register: cv_version_output
+#  async: 1800
+#  poll: 60
+
+- name: Print Content View information
+  ansible.builtin.debug:
+    msg: "{{ cv_version_output }}"
+    verbosity: 1

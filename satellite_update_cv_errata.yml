@@ -63,19 +63,21 @@
                 state: present
 #                version: "{{ filter_start_date }}"
 #                version: "4.0"
-                content_view_filters:
-                  - date_type: updated
-                    description: Exclude errata after a given date
-                    filter_state: present
+                filters:
+                  - description: Exclude errata after a given date
                     filter_type: erratum
                     inclusion: false
                     name: Errata-To-Date
-                    rule_state: present
-                    start_date: "{{ filter_start_date }}"
-                    types:
-                      - bugfix
-                      - enhancement
-                      - security
+                    state: present
+                    rules:
+                      - date_type: updated
+                        name: "Exclude errata after 2024-02-01"
+                        rule_state: present
+                        start_date: "{{ filter_start_date }}"
+                        types:
+                          - bugfix
+                          - enhancement
+                          - security
 
         - name: Print Content View information
           ansible.builtin.debug:
@@ -84,8 +86,9 @@
           loop: "{{ satellite_content_views_to_publish }}"
           when: satellite_content_views_to_publish is defined
 
-        - name: Loop over all the content views/filter definitions and ensure they are created and published
+        - name: Loop to add all of the filters associated with each Content View
           ansible.builtin.include_tasks:
-            file: files/content_view_loop_tasks.yml
+            file: tasks/content_view_filters.yml
           loop: "{{ satellite_content_views_to_publish }}"
-          when: satellite_content_views_to_publish is defined
+          loop_control:
+            loop_var: content_view_item

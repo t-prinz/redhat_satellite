@@ -63,62 +63,76 @@ satellite_content_views_to_publish:
     username: "{{ satellite_username }}"
     validate_certs: "{{ satellite_validate_certs }}"
     content_view: RHEL-8-Base-CV
-    description: "2021-04 Update - all packages, errata excluded starting 2021-05-01"
+    description: "2024-01 Update - all packages, errata excluded starting 2024-02-01"
+    force_promote: True
     lifecycle_environments:
       - Library
-      - Dev
-      - Test
       - Prod
     state: present
     version: "2.0"
-    content_view_filters:
-      - architecture: "*"
-        description: Specifies all packages
-        filter_state: present
+    filters:
+      - description: Specifies all packages
         filter_type: rpm
         inclusion: yes
         name: "All packages"
         original_packages: yes
-        package_name: "*"
-        rule_name: "*"
-        rule_state: present
-      - date_type: updated
-        description: Exclude errata after a given date
-        filter_state: present
+        state: present
+        rules:
+          - architecture: "*"
+            name: "*"
+            rule_state: present
+      - description: Exclude errata after a given date
         filter_type: erratum
         inclusion: no
         name: Errata-To-Date
-        rule_state: present
-        start_date: "2021-05-01"
-        types:
-          - bugfix
-          - enhancement
-          - security
+        state: present
+        rules:
+          - date_type: updated
+            name: "Exclude errata after 2024-02-01"
+            rule_state: present
+            start_date: "2024-02-01"
+            types:
+              - bugfix
+              - enhancement
+              - security
   - organization: "{{ satellite_organization }}"
     password: "{{ satellite_password }}"
     server_url: "{{ satellite_server_url }}"
     username: "{{ satellite_username }}"
     validate_certs: "{{ satellite_validate_certs }}"
     content_view: RHEL-8-Base-CV
-    description: "2021-05 Update - all packages, errata excluded starting 2021-06-01"
+    description: "2024-02 Update - all packages, errata excluded starting 2024-03-01"
+    force_promote: True
     lifecycle_environments:
       - Library
-      - Dev
+      - Prod
     state: present
     version: "3.0"
-    content_view_filters:
-      - date_type: updated
-        description: Exclude errata after a given date
-        filter_state: present
+    filters:
+      - description: Specifies all packages
+        filter_type: rpm
+        inclusion: yes
+        name: "All packages"
+        original_packages: yes
+        state: present
+        rules:
+          - architecture: "*"
+            name: "*"
+            rule_state: present
+      - description: Exclude errata after a given date
         filter_type: erratum
         inclusion: no
         name: Errata-To-Date
-        rule_state: present
-        start_date: "2021-06-01"
-        types:
-          - bugfix
-          - enhancement
-          - security
+        state: present
+        rules:
+          - date_type: updated
+            name: "Exclude errata after 2024-03-01"
+            rule_state: present
+            start_date: "2024-03-01"
+            types:
+              - bugfix
+              - enhancement
+              - security
 
 # This list defines 3 Activation Keys
 

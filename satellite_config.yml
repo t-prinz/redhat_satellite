@@ -48,10 +48,12 @@
           ansible.builtin.include_role:
             name: redhat.satellite.content_views
 
-        - name: Loop over all the content views/filter definitions and ensure they are created and published
+        - name: Loop to add all of the filters associated with each Content View
           ansible.builtin.include_tasks:
-            file: files/content_view_loop_tasks.yml
+            file: tasks/content_view_filters.yml
           loop: "{{ satellite_content_views_to_publish }}"
+          loop_control:
+            loop_var: content_view_item
 
         - name: Ensure Activation Keys are created
           ansible.builtin.include_role:
