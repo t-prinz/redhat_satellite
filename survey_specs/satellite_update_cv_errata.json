@@ -6,7 +6,7 @@
       "min": 0,
       "default": "",
       "max": 160,
-      "question_description": "Enter the name of the Satellite server",
+      "question_description": "Enter the name of the Satellite server as defined in the Ansible inventory",
       "new_question": true,
       "variable": "hostlist",
       "question_name": "Enter the Satellite hostname",
