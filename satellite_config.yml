@@ -9,7 +9,7 @@
 
         - name: Print Satellite installation parameters
           ansible.builtin.debug:
-            msg: "{{ inventory_hostname }}, {{ satellite_username }}, {{ satellite_password }}, {{ satellite_organization }}, {{ satellite_location }} {{ satellite_manifest_path }}"
+            msg: "{{ satellite_username }}, {{ satellite_password }}, {{ satellite_organization }}, {{ satellite_location }} {{ satellite_manifest_path }}"
             verbosity: 1
 
         - name: Ensure the Satellite server name is defined

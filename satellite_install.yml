@@ -7,7 +7,7 @@
 
     - name: Print Satellite installation parameters
       ansible.builtin.debug:
-        msg: "{{ inventory_hostname }}, {{ satellite_username }}, {{ satellite_password }}, {{ satellite_organization }}, {{ satellite_location }} {{ satellite_manifest_path }}"
+        msg: "{{ satellite_username }}, {{ satellite_password }}, {{ satellite_organization }}, {{ satellite_location }} {{ satellite_manifest_path }}"
         verbosity: 1
 
 #    - name: Install Satellite
@@ -39,3 +39,6 @@
         msg: "Satellite installation failed; failing play"
       when: satellite_install_output.failed
       failed_when: satellite_install_output.failed
+
+    - name: Install default OpenSCAP content
+      ansible.builtin.command: "hammer scap-content bulk-upload --type default"

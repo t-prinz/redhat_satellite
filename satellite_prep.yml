@@ -3,7 +3,7 @@
   hosts: "{{ hostlist | default('all') }}"
   become: true
   vars:
-    satellite_version: "6.15"
+    satellite_version: "6.16"
 
   tasks:
 
@@ -68,7 +68,42 @@
               - "9090/tcp"
               - "1883/tcp"
 
+        - name: Ensure RHEL release version is not set
+          ansible.builtin.command: "subscription-manager release --unset"
+
       when: ansible_facts.distribution is defined and ansible_facts.distribution == "RedHat" and ansible_facts.distribution_major_version is defined and ansible_facts.distribution_major_version == "8"
+
+    - name: Block for Satellite 6.16+ and RHEL 9
+      block:
+
+        - name: Ensure system is registered with RHSM and that the proper repos are enabled for RHEL 9
+          ansible.builtin.include_role:
+            name: rhportal_reg
+          vars:
+            rhportal_reg_rhsm_supplemental_repo_list:
+              - "satellite-{{ satellite_version }}-for-rhel-9-x86_64-rpms"
+              - "satellite-maintenance-{{ satellite_version }}-for-rhel-9-x86_64-rpms"
+
+#        - name: Enable the Satellite module
+#          ansible.builtin.command:
+#            cmd: "dnf module enable -y satellite:el9"
+
+        - name: Define incoming firewall ports to open
+          ansible.builtin.set_fact:
+            satellite_incoming_firewall_ports:
+              - "53/udp"
+              - "53/tcp"
+              - "67/udp"
+              - "69/udp"
+              - "80/tcp"
+              - "443/tcp"
+              - "1883/tcp"
+              - "8000/tcp"
+              - "8140/tcp"
+              - "9090/tcp"
+              - "5910-5930/tcp"
+
+      when: ansible_facts.distribution is defined and ansible_facts.distribution == "RedHat" and ansible_facts.distribution_major_version is defined and ansible_facts.distribution_major_version == "9"
 
     - name: Ensure firewalld is installed
       ansible.builtin.yum:
@@ -89,11 +124,6 @@
         state: enabled
       with_items: "{{ satellite_incoming_firewall_ports }}"
 
-    - name: Ensure RHEL release version is not set
-      ansible.builtin.command: "subscription-manager release --unset"
-#      args:
-#        warn: No
-
     - name: Ensure kernel is up-to-date; if so a reboot will occur
       ansible.builtin.yum:
         name: kernel
@@ -109,7 +139,7 @@
         name: '*'
         state: latest
 
-    - name: Ensure Satellite and other required software is installed (RHEL system roles and screen not strictly required)
+    - name: Ensure Satellite and other software is installed (satellite is the only required package starting with 6.16)
       ansible.builtin.yum:
         name: "{{ satellite_sw_list }}"
         state: latest
@@ -121,7 +151,7 @@
           - rhel-system-roles
 #          - screen
 
-    - name: Ensure chronyd is enabled and started
+    - name: Ensure chronyd is enabled and started (not required for Satellite 6.16)
       ansible.builtin.service:
         name: chronyd
         enabled: True
