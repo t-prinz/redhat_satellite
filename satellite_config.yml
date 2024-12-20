@@ -4,6 +4,19 @@
 
   tasks:
 
+    - name: Get the Satellite server FQDN
+      ansible.builtin.command: 'hostname -f'
+      register: hostname_out
+
+    - name: Print the Satellite server FQDN
+      ansible.builtin.debug:
+        msg: "Satellite FQDN: {{ hostname_out.stdout }}"
+        verbosity: 1
+
+    - name: Ensure the Satellite server FQDN is defined
+      ansible.builtin.set_fact:
+        satellite_server_fqdn: "{{ hostname_out.stdout }}"
+
     - name: Configure various components on the Satellite server
       block:
 
@@ -12,9 +25,9 @@
             msg: "{{ satellite_username }}, {{ satellite_password }}, {{ satellite_organization }}, {{ satellite_location }} {{ satellite_manifest_path }}"
             verbosity: 1
 
-        - name: Ensure the Satellite server name is defined
+        - name: Ensure the Satellite server URL is defined
           ansible.builtin.set_fact:
-            satellite_server_url: "https://{{ ansible_host }}"
+            satellite_server_url: "https://{{ satellite_server_fqdn }}"
 
         - name: Print Satellite server connection information
           ansible.builtin.debug:
@@ -55,8 +68,62 @@
           loop_control:
             loop_var: content_view_item
 
+        - name: Ensure Host Collections are created
+          redhat.satellite.host_collection:
+            description: "{{ item.description | default(omit) }}"
+            name: "{{ item.name }}"
+            organization: "{{ satellite_organization }}"
+            password: "{{ satellite_password}}"
+            server_url: "{{ satellite_server_url }}"
+            state: "{{ item.state | default(omit) }}"
+            updated_name: "{{ item.updated_name | default(omit) }}"
+            username: "{{ satellite_username }}"
+            validate_certs: no
+          with_items: "{{ satellite_host_collections }}"
+
         - name: Ensure Activation Keys are created
           ansible.builtin.include_role:
             name: redhat.satellite.activation_keys
+
+        - name: Ensure Host Groups are created
+          redhat.satellite.hostgroup:
+            activation_keys: "{{ item.activation_keys | default(omit) }}"
+            ansible_roles: "{{ item.ansible_roles | default(omit) }}"
+            architecture: "{{ item.architecture | default(omit) }}"
+            compute_profile: "{{ item.compute_profile | default(omit) }}"
+            compute_resource: "{{ item.compute_resource | default(omit) }}"
+            config_groups: "{{ item.config_groups | default(omit) }}"
+            content_source: "{{ satellite_server_fqdn }}"
+            content_view: "{{ item.content_view | default(omit) }}"
+            description: "{{ item.description | default(omit) }}"
+            domain: "{{ item.domain | default(omit) }}"
+            environment: "{{ item.environment | default(omit) }}"
+            kickstart_repository: "{{ item.kickstart_repository | default(omit) }}"
+            lifecycle_environment: "{{ item.lifecycle_environment | default(omit) }}"
+            locations: "{{ satellite_location }}"
+            medium: "{{ item.medium | default(omit) }}"
+            name: "{{ item.name | default(omit) }}"
+            openscap_proxy: "{{ satellite_server_fqdn }}"
+            operatingsystem: "{{ item.operatingsystem | default(omit) }}"
+            organization: "{{ satellite_organization }}"
+            organizations: "{{ item.organizations | default(omit) }}"
+            parameters: "{{ item.parameters | default(omit) }}"
+            parent: "{{ item.parent | default(omit) }}"
+            password: "{{ satellite_password}}"
+            ptable: "{{ item.ptable | default(omit) }}"
+            puppet_ca_proxy: "{{ item.puppet_ca_proxy | default(omit) }}"
+            puppet_proxy: "{{ item.puppet_proxy | default(omit) }}"
+            puppetclasses: "{{ item.puppetclasses | default(omit) }}"
+            pxe_loader: "{{ item.pxe_loader | default(omit) }}"
+            realm: "{{ item.realm | default(omit) }}"
+            root_pass: "{{ item.root_pass | default(omit) }}"
+            server_url: "{{ satellite_server_url }}"
+            state: "{{ item.state | default(omit) }}"
+            subnet: "{{ item.subnet | default(omit) }}"
+            subnet6: "{{ item.subnet6 | default(omit) }}"
+            updated_name: "{{ item.updated_name | default(omit) }}"
+            username: "{{ satellite_username }}"
+            validate_certs: no
+          with_items: "{{ satellite_hostgroups }}"
 
       delegate_to: localhost
