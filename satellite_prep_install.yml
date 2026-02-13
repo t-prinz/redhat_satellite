@@ -151,9 +151,14 @@
           - "puppetmaster"
       when: satellite_version == 6.18
 
-    - name: Ensure system is registered with RHSM and that the proper repos are enabled
-      ansible.builtin.include_role:
-        name: rhportal_reg
+#    - name: Ensure system is registered with RHSM and that the proper repos are enabled
+#      ansible.builtin.include_role:
+#        name: rhportal_reg
+
+    - name: Ensure the additional repositories are enabled
+      ansible.builtin.command:
+        cmd: "subscription-manager repos --enable {{ item }}"
+      with_items: "{{ rhportal_reg_rhsm_supplemental_repo_list }}"
 
     - name: Block for RHEL 8
       block:

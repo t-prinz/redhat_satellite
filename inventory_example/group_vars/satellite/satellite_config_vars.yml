@@ -1,6 +1,6 @@
 ---
 satellite_organization: "Acme"
-satellite_location: "Austin"
+satellite_location: "Sonoran Desert"
 satellite_manifest_path: your-manifest-file.zip
 satellite_validate_certs: False
 
@@ -9,13 +9,19 @@ satellite_validate_certs: False
 satellite_products:
   - name: Red Hat Enterprise Linux for x86_64
     repository_sets:
-      - name: Red Hat Enterprise Linux 8 for x86_64 - BaseOS (RPMs)
-        releasever: 8
-      - name: Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)
-        releasever: 8
-      - name: Red Hat Satellite Tools 6.9 for RHEL 8 x86_64 (RPMs)
+      - name: Red Hat Enterprise Linux 9 for x86_64 - BaseOS (RPMs)
+        releasever: 9
+      - name: Red Hat Enterprise Linux 9 for x86_64 - AppStream (RPMs)
+        releasever: 9
+      - name: Red Hat Enterprise Linux 10 for x86_64 - BaseOS (RPMs)
+        releasever: 10
+      - name: Red Hat Enterprise Linux 10 for x86_64 - AppStream (RPMs)
+        releasever: 10
+      - name: Red Hat Satellite Tools 6.10 for RHEL 8 x86_64 (RPMs)
+      - name: Red Hat Satellite Client 6 for RHEL 9 x86_64 (RPMs)
+      - name: Red Hat Satellite Client 6 for RHEL 10 x86_64 (RPMs)
 
-# This list defines 3 lifecycle environments that will be created
+# This list defines the lifecycle environments that will be created
 
 satellite_lifecycle_environments:
   - name: "Dev"
@@ -28,22 +34,41 @@ satellite_lifecycle_environments:
     description: "Production environment"
     prior: "Test"
 
-# This list defines a single Content View along with the included repositories
+# This list defines the Content Views that will created, along with the included repositories
 
 satellite_content_views:
-  - name: RHEL-8-Base-CV
+  - name: RHEL-9-Base-CV
     repositories:
-      - name: Red Hat Enterprise Linux 8 for x86_64 - AppStream RPMs 8
+      - name: Red Hat Enterprise Linux 9 for x86_64 - AppStream RPMs 9
         product: Red Hat Enterprise Linux for x86_64
-      - name: Red Hat Enterprise Linux 8 for x86_64 - BaseOS RPMs 8
+      - name: Red Hat Enterprise Linux 9 for x86_64 - BaseOS RPMs 9
         product: Red Hat Enterprise Linux for x86_64
-      - name: Red Hat Satellite Tools 6.9 for RHEL 8 x86_64 RPMs
+      - name: Red Hat Satellite Client 6 for RHEL 9 x86_64 RPMs 
         product: Red Hat Enterprise Linux for x86_64
+      - name: JBoss Web Server 6 RHEL 9 RPMs
+        product: JBoss Enterprise Web Server
+  - name: RHEL-10-Base-CV
+    repositories:
+      - name: Red Hat Enterprise Linux 10 for x86_64 - AppStream RPMs 10
+        product: Red Hat Enterprise Linux for x86_64
+      - name: Red Hat Enterprise Linux 10 for x86_64 - BaseOS RPMs 10
+        product: Red Hat Enterprise Linux for x86_64
+      - name: Red Hat Satellite Client 6 for RHEL 10 x86_64 RPMs 
+        product: Red Hat Enterprise Linux for x86_64
+      - name: JBoss Web Server 6 RHEL 10 RPMs
+        product: JBoss Enterprise Web Server
 
-# This list defines 3 Content Views to publish; each Content View can have a list of filters applied
-#   The first does not have any filters applied
-#   The second has 2 filters applied
-#   The third also has 2 filters applied but the date of the Exclude filter is updated
+# This list defines the Content Views to publish; each Content View can have a list of filters applied
+#
+#   RHEL 9
+#     The first does not have any filters applied
+#     The second has 2 filters applied
+#     The third also has 2 filters applied but the date of the Exclude filter is updated
+#
+#   RHEL 10
+#     The first does not have any filters applied
+#     The second has 2 filters applied
+#     The third also has 2 filters applied but the date of the Exclude filter is updated
 
 satellite_content_views_to_publish:
   - organization: "{{ satellite_organization }}"
@@ -51,7 +76,7 @@ satellite_content_views_to_publish:
     server_url: "{{ satellite_server_url }}"
     username: "{{ satellite_username }}"
     validate_certs: "{{ satellite_validate_certs }}"
-    content_view: RHEL-8-Base-CV
+    content_view: RHEL-9-Base-CV
     description: "Initial publish; unfiltered"
     lifecycle_environments:
       - Library
@@ -62,8 +87,8 @@ satellite_content_views_to_publish:
     server_url: "{{ satellite_server_url }}"
     username: "{{ satellite_username }}"
     validate_certs: "{{ satellite_validate_certs }}"
-    content_view: RHEL-8-Base-CV
-    description: "2024-01 Update - all packages, errata excluded starting 2024-02-01"
+    content_view: RHEL-9-Base-CV
+    description: "2025-10 Update - all packages, errata excluded starting 2025-11-01"
     force_promote: True
     lifecycle_environments:
       - Library
@@ -88,9 +113,9 @@ satellite_content_views_to_publish:
         state: present
         rules:
           - date_type: updated
-            name: "Exclude errata after 2024-02-01"
+            name: "Exclude errata after 2025-11-01"
             rule_state: present
-            start_date: "2024-02-01"
+            start_date: "2025-11-01"
             types:
               - bugfix
               - enhancement
@@ -100,12 +125,13 @@ satellite_content_views_to_publish:
     server_url: "{{ satellite_server_url }}"
     username: "{{ satellite_username }}"
     validate_certs: "{{ satellite_validate_certs }}"
-    content_view: RHEL-8-Base-CV
-    description: "2024-02 Update - all packages, errata excluded starting 2024-03-01"
+    content_view: RHEL-9-Base-CV
+    description: "2025-11 Update - all packages, errata excluded starting 2025-12-01"
     force_promote: True
     lifecycle_environments:
       - Library
-      - Prod
+      - Test
+      - Dev
     state: present
     version: "3.0"
     filters:
@@ -126,32 +152,203 @@ satellite_content_views_to_publish:
         state: present
         rules:
           - date_type: updated
-            name: "Exclude errata after 2024-03-01"
+            name: "Exclude errata after 2025-12-01"
             rule_state: present
-            start_date: "2024-03-01"
+            start_date: "2025-12-01"
+            types:
+              - bugfix
+              - enhancement
+              - security
+  - organization: "{{ satellite_organization }}"
+    password: "{{ satellite_password }}"
+    server_url: "{{ satellite_server_url }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs }}"
+    content_view: RHEL-10-Base-CV
+    description: "Initial publish; unfiltered"
+    lifecycle_environments:
+      - Library
+    state: present
+    version: "1.0"
+  - organization: "{{ satellite_organization }}"
+    password: "{{ satellite_password }}"
+    server_url: "{{ satellite_server_url }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs }}"
+    content_view: RHEL-10-Base-CV
+    description: "2025-10 Update - all packages, errata excluded starting 2025-11-01"
+    force_promote: True
+    lifecycle_environments:
+      - Library
+      - Prod
+    state: present
+    version: "2.0"
+    filters:
+      - description: Specifies all packages
+        filter_type: rpm
+        inclusion: yes
+        name: "All packages"
+        original_packages: yes
+        state: present
+        rules:
+          - architecture: "*"
+            name: "*"
+            rule_state: present
+      - description: Exclude errata after a given date
+        filter_type: erratum
+        inclusion: no
+        name: Errata-To-Date
+        state: present
+        rules:
+          - date_type: updated
+            name: "Exclude errata after 2025-11-01"
+            rule_state: present
+            start_date: "2025-11-01"
+            types:
+              - bugfix
+              - enhancement
+              - security
+  - organization: "{{ satellite_organization }}"
+    password: "{{ satellite_password }}"
+    server_url: "{{ satellite_server_url }}"
+    username: "{{ satellite_username }}"
+    validate_certs: "{{ satellite_validate_certs }}"
+    content_view: RHEL-10-Base-CV
+    description: "2025-11 Update - all packages, errata excluded starting 2025-12-01"
+    force_promote: True
+    lifecycle_environments:
+      - Library
+      - Test
+      - Dev
+    state: present
+    version: "3.0"
+    filters:
+      - description: Specifies all packages
+        filter_type: rpm
+        inclusion: yes
+        name: "All packages"
+        original_packages: yes
+        state: present
+        rules:
+          - architecture: "*"
+            name: "*"
+            rule_state: present
+      - description: Exclude errata after a given date
+        filter_type: erratum
+        inclusion: no
+        name: Errata-To-Date
+        state: present
+        rules:
+          - date_type: updated
+            name: "Exclude errata after 2025-12-01"
+            rule_state: present
+            start_date: "2025-12-01"
             types:
               - bugfix
               - enhancement
               - security
 
-# This list defines 3 Activation Keys
+# This list defines the Host Collections
+
+satellite_host_collections:
+  - name: "RHEL-Dev-HC"
+  - name: "RHEL-Test-HC"
+  - name: "RHEL-Prod-HC"
+
+# This list defines the Activation Keys 
 
 satellite_activation_keys:
-  - name: "RHEL-8-Dev-AK"
+  - name: "RHEL-9-Dev-AK"
     lifecycle_environment: "Dev"
-    content_view: "RHEL-8-Base-CV"
+    content_view: "RHEL-9-Base-CV"
     content_overrides:
-      - label: "satellite-tools-6.9-for-rhel-8-x86_64-rpms"
+      - label: "satellite-client-6-for-rhel-9-x86_64-rpms"
         override: enabled
-  - name: "RHEL-8-Test-AK"
+    host_collections:
+      - "RHEL-Dev-HC"
+    purpose_role: "Red Hat Enterprise Linux Server"
+    purpose_usage: Production
+    service_level: Standard
+  - name: "RHEL-9-Test-AK"
     lifecycle_environment: "Test"
-    content_view: "RHEL-8-Base-CV"
+    content_view: "RHEL-9-Base-CV"
     content_overrides:
-      - label: "satellite-tools-6.9-for-rhel-8-x86_64-rpms"
+      - label: "satellite-client-6-for-rhel-9-x86_64-rpms"
         override: enabled
-  - name: "RHEL-8-Prod-AK"
+    host_collections:
+      - "RHEL-Test-HC"
+    purpose_role: "Red Hat Enterprise Linux Server"
+    purpose_usage: Production
+    service_level: Standard
+  - name: "RHEL-9-Prod-AK"
     lifecycle_environment: "Prod"
-    content_view: "RHEL-8-Base-CV"
+    content_view: "RHEL-9-Base-CV"
     content_overrides:
-      - label: "satellite-tools-6.9-for-rhel-8-x86_64-rpms"
+      - label: "satellite-client-6-for-rhel-9-x86_64-rpms"
         override: enabled
+    host_collections:
+      - "RHEL-Prod-HC"
+    purpose_role: "Red Hat Enterprise Linux Server"
+    purpose_usage: Production
+    service_level: Standard
+  - name: "RHEL-10-Dev-AK"
+    lifecycle_environment: "Dev"
+    content_view: "RHEL-10-Base-CV"
+    content_overrides:
+      - label: "satellite-client-6-for-rhel-10-x86_64-rpms"
+        override: enabled
+    host_collections:
+      - "RHEL-Dev-HC"
+    purpose_role: "Red Hat Enterprise Linux Server"
+    purpose_usage: Production
+    service_level: Standard
+  - name: "RHEL-10-Test-AK"
+    lifecycle_environment: "Test"
+    content_view: "RHEL-10-Base-CV"
+    content_overrides:
+      - label: "satellite-client-6-for-rhel-10-x86_64-rpms"
+        override: enabled
+    host_collections:
+      - "RHEL-Test-HC"
+    purpose_role: "Red Hat Enterprise Linux Server"
+    purpose_usage: Production
+    service_level: Standard
+  - name: "RHEL-10-Prod-AK"
+    lifecycle_environment: "Prod"
+    content_view: "RHEL-10-Base-CV"
+    content_overrides:
+      - label: "satellite-client-6-for-rhel-10-x86_64-rpms"
+        override: enabled
+    host_collections:
+      - "RHEL-Prod-HC"
+    purpose_role: "Red Hat Enterprise Linux Server"
+    purpose_usage: Production
+    service_level: Standard
+
+# This list defines the Host Groups
+
+satellite_hostgroups:
+  - activation_keys: "RHEL-9-Dev-AK"
+    content_view: "RHEL-9-Base-CV"
+    lifecycle_environment: "Dev"
+    name: "RHEL-9-Dev-HG"
+  - activation_keys: "RHEL-9-Test-AK"
+    content_view: "RHEL-9-Base-CV"
+    lifecycle_environment: "Test"
+    name: "RHEL-9-Test-HG"
+  - activation_keys: "RHEL-9-Prod-AK"
+    content_view: "RHEL-9-Base-CV"
+    lifecycle_environment: "Prod"
+    name: "RHEL-9-Prod-HG"
+  - activation_keys: "RHEL-10-Dev-AK"
+    content_view: "RHEL-10-Base-CV"
+    lifecycle_environment: "Dev"
+    name: "RHEL-10-Dev-HG"
+  - activation_keys: "RHEL-10-Test-AK"
+    content_view: "RHEL-10-Base-CV"
+    lifecycle_environment: "Test"
+    name: "RHEL-10-Test-HG"
+  - activation_keys: "RHEL-10-Prod-AK"
+    content_view: "RHEL-10-Base-CV"
+    lifecycle_environment: "Prod"
+    name: "RHEL-10-Prod-HG"

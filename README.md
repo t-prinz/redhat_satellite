@@ -4,20 +4,9 @@ These playbooks can be used to install and configure a Satellite server.  If the
 
 ### Prerequisites
 
-* These playbooks make use of the Red Hat "redhat.satellite" collection, which is available via the Ansible Automation Platform (which requires a subscription).
+* These playbooks make use of the Red Hat "redhat.satellite" collection, which is available via the Ansible Automation Platform subscription.
 
-    If the playbooks are run via the command line and ansible-galaxy is used to install the collections (as shown in the examples), the ansible-galaxy client must be configured.  The documentation showing how to do this can be found [here](https://docs.ansible.com/ansible/latest/galaxy/user_guide.html#configuring-the-ansible-galaxy-client).
-
-    If the playbooks are run via Ansible Tower, an Ansible Galaxy credential must be created and configured for the Organization.  The documentation showing how to do this can be found [here](https://docs.ansible.com/automation-controller/4.2.1/html/userguide/projects.html?extIdCarryOver=true&intcmp=701f2000001OEH1AAO&sc_cid=701f2000000u72fAAA#using-collections-via-hub:~:text=16.8.1.%20Using-,Collections,-via%20Hub).
-
-    *In either case, credentials for Ansible Automation Hub are required; these credentials can be found [here](https://console.redhat.com/ansible/automation-hub/token).*
-        
-* In a previous version (tag v0.9), the playbooks referenced two variables that, in turn, referenced two files that held the variables controlling the exeuction of the playbooks.  These variables are no longer used; instead, the playbooks expect the variables to be defined as part of the inventory.
-
-* If using Ansible from the command line, install the roles and collections using the following commands.
-
-        ansible-galaxy role install -r roles/requirements.yml
-        ansible-galaxy collection install -r collections/requirements.yml
+* The Satellite server must be registered to a content source and have access to the Satellite repositories.
 
 ### Using the playbooks
 
@@ -28,23 +17,21 @@ Define some environment variables for convenience
     INVENTORY=inventory_example
     SATELLITE_SERVER=sat.example.com
 
-This playbook will register the system and take care of the prerequisites
+This playbook will take care of the prerequisites and install the Satellite server
 
     ansible-playbook -i ${INVENTORY} \
                      -l ${SATELLITE_SERVER} \
-                     satellite_prep.yml
-
-This playbook will perform the actual Satellite installation
-
-    ansible-playbook -i ${INVENTORY} \
-                     -l ${SATELLITE_SERVER} \
-                     satellite_install.yml
+                     satellite_prep_install.yml
 
 This playbook will configure the Satellite server
 
     ansible-playbook -i ${INVENTORY} \
                      -l ${SATELLITE_SERVER} \
                      satellite_config.yml
+
+### Determining the products, repository_sets, and repositories
+
+The playbook satellite_update_cv_errata.yml and the associated survey file (survey_specs/satellite_update_cv_errata.json) illustrate how an Ansible Automation Platform Job Template Survey can be used to update and publish a Content View.  A template like this could be run on a regular basis to update a Content View with the latest errata.
 
 ### Determining the products, repository_sets, and repositories
 
@@ -129,3 +116,13 @@ These repository names are used in the Content View definition:
             product: Red Hat Enterprise Linux Server
           - name: Red Hat Satellite Client 6 for RHEL 7 Server RPMs x86_64
             product: Red Hat Enterprise Linux Server
+
+### Version information
+
+* In version tag v0.9, the playbooks referenced two variables that, in turn, referenced two files that held the variables controlling the exeuction of the playbooks.  These variables are no longer used; instead, the playbooks expect the variables to be defined as part of the inventory.
+
+* In version tag v2.0, the playbooks started making use of version 4.x of the redhat.satellite collection.  This version introduced changes to the way Content View filters are managed.
+
+* In version tag v2.1, the playbooks satellite_prep.yml and satellite_install.yml were merged into a single playbook for both preparation and installation.
+
+* In version tag v3.0, the tasks that dealt with registering the Satellite server for content access were removed.  Consequently, the Satellite server must now be registered and have access to the Satellite repositories prior to using these playbooks.  The playbooks take care of enabling the proper repositories.
