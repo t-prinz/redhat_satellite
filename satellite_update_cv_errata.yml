@@ -55,7 +55,7 @@
                 password: "{{ satellite_password }}"
                 server_url: "{{ satellite_server_url }}"
                 username: "{{ satellite_username }}"
-                validate_certs: "{{ satellite_validate_certs }}"
+                validate_certs: "{{ satellite_validate_certs | default(false) }}"
                 content_view: "{{ satellite_content_view }}"
                 description: "All packages, errata excluded starting {{ filter_start_date }}"
                 force_promote: true
