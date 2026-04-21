@@ -121,6 +121,8 @@ These repository names are used in the Content View definition:
 
 * In version tag v0.9, the playbooks referenced two variables that, in turn, referenced two files that held the variables controlling the exeuction of the playbooks.  These variables are no longer used; instead, the playbooks expect the variables to be defined as part of the inventory.
 
+* In version tag v1.0, satellite_update_cv_errata.yml was modified to use the current date if no date was specified; satellite_prep.yml was modified to break out the requirements for different versions of RHEL/Satellite.
+
 * In version tag v2.0, the playbooks started making use of version 4.x of the redhat.satellite collection.  This version introduced changes to the way Content View filters are managed.
 
 * In version tag v2.1, the playbooks satellite_prep.yml and satellite_install.yml were merged into a single playbook for both preparation and installation.
