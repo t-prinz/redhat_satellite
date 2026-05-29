@@ -1,4 +1,5 @@
 ---
 
+satellite_validate_certs: false
 satellite_username: "admin"
 satellite_password: ""

@@ -2,7 +2,6 @@
 satellite_organization: "Acme"
 satellite_location: "Sonoran Desert"
 satellite_manifest_path: your-manifest-file.zip
-satellite_validate_certs: False
 
 # This list defines the repositories that will be synchronized
 
