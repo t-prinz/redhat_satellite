@@ -3,7 +3,7 @@
   hosts: "{{ hostlist | default('all') }}"
   become: true
   vars:
-    satellite_version: 6.18
+    satellite_version: 6.19
     install_openscap_content: true
 
   tasks:
@@ -133,14 +133,15 @@
       when: satellite_version >= 6.15 and
             satellite_version <= 6.17
 
-    - name: Define incoming firewall ports to open for 6.18
+    - name: Define incoming firewall ports to open for 6.18 - 6.19
       ansible.builtin.set_fact:
         satellite_incoming_firewall_ports:
           - "8000/tcp"
           - "9090/tcp"
-      when: satellite_version == 6.18
+      when: satellite_version >= 6.18 and
+            satellite_version <= 6.19
 
-    - name: Define incoming firewall services to open for 6.18
+    - name: Define incoming firewall services to open for 6.18 - 6.19
       ansible.builtin.set_fact:
         satellite_incoming_firewall_services:
           - "dns"
@@ -149,7 +150,8 @@
           - "http"
           - "https"
           - "puppetmaster"
-      when: satellite_version == 6.18
+      when: satellite_version >= 6.18 and
+            satellite_version <= 6.19
 
 #    - name: Ensure system is registered with RHSM and that the proper repos are enabled
 #      ansible.builtin.include_role:
@@ -261,8 +263,8 @@
             satellite_version >= 6.8 and
             satellite_version <= 6.10
 
-    - name: Install default OpenSCAP content for 6.11 - 6.18
+    - name: Install default OpenSCAP content for 6.11 - 6.19
       ansible.builtin.command: "hammer scap-content bulk-upload --type default"
       when: install_openscap_content and
             satellite_version >= 6.11 and
-            satellite_version <= 6.18
+            satellite_version <= 6.19

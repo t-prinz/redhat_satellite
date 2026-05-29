@@ -128,3 +128,5 @@ These repository names are used in the Content View definition:
 * In version tag v2.1, the playbooks satellite_prep.yml and satellite_install.yml were merged into a single playbook for both preparation and installation.
 
 * In version tag v3.0, the tasks that dealt with registering the Satellite server for content access were removed.  Consequently, the Satellite server must now be registered and have access to the Satellite repositories prior to using these playbooks.  The playbooks take care of enabling the proper repositories.
+
+* In version tag v3.1, support for Satellite 6.19 was added.
