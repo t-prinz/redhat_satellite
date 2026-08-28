@@ -5,8 +5,14 @@
   vars:
     satellite_version: 6.19
     install_openscap_content: true
+    use_letsencrypt: false
 
   tasks:
+
+    - name: Notify if using letsencrypt
+      debug:
+        msg: "Going to use letsencrypt"
+      when: use_letsencrypt
 
     - name: Ensure the target is a Red Hat system
       ansible.builtin.assert:
@@ -201,20 +207,40 @@
         state: enabled
       with_items: "{{ satellite_incoming_firewall_services }}"
 
-    - name: Ensure kernel is up-to-date; if so a reboot will occur
-      ansible.builtin.yum:
-        name: kernel
-        state: latest
-      register: kernel_status
+#    - name: Ensure kernel is up-to-date; if so a reboot will occur
+#      ansible.builtin.yum:
+#        name: kernel
+#        state: latest
+#      register: kernel_status
 
-    - name: Reboot server if needed
-      ansible.builtin.reboot:
-      when: kernel_status.changed
+#    - name: Reboot server if needed
+#      ansible.builtin.reboot:
+#      when: kernel_status.changed
 
     - name: Ensure all packages are updated
       ansible.builtin.yum:
         name: '*'
         state: latest
+
+    - name: Check for pending reboot on RHEL
+      ansible.builtin.command:
+        cmd: needs-restarting -r
+      register: reboot_required
+      failed_when: reboot_required.rc not in [0, 1]
+      changed_when: reboot_required.rc == 1
+
+    - name: Reboot server if a reboot is required
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+      when: reboot_required.rc == 1
+
+    - name: Get the hostname
+      ansible.builtin.command: 'hostname -f'
+      register: hostname_out
+
+    - name: Print the hostname
+      ansible.builtin.debug:
+        msg: "Installing Satellite on host: {{ hostname_out.stdout }}"
 
     - name: Ensure Satellite and other software is installed (satellite is the only required package starting with 6.16)
       ansible.builtin.yum:
@@ -240,16 +266,83 @@
         verbosity: 1
 
     - name: Install Satellite; wait for up to an hour to complete
-      ansible.builtin.command: "satellite-installer --scenario satellite --foreman-initial-organization {{ satellite_organization }} --foreman-initial-location {{ satellite_location }} --foreman-initial-admin-username {{ satellite_username }} --foreman-initial-admin-password {{ satellite_password }}"
+      ansible.builtin.command: >
+          satellite-installer --scenario satellite
+                              --foreman-initial-organization {{ satellite_organization }}
+                              --foreman-initial-location {{ satellite_location }}
+                              --foreman-initial-admin-username {{ satellite_username }}
+                              --foreman-initial-admin-password {{ satellite_password }}
       register: satellite_install_output
       ignore_errors: yes
       async: 3600
       poll: 60
+      when: not use_letsencrypt | bool
+
+    - name: Resolve path to cert.pem filename
+      ansible.builtin.stat:
+        path: "/etc/letsencrypt/live/{{ hostname_out.stdout }}/cert.pem"
+      register: stat_out
+
+    - name: Defile cert_fn
+      ansible.builtin.set_fact:
+        cert_fn: "{{ stat_out.stat.lnk_source | default (stat_out.stat.path) }}"
+
+    - name: Print cert_fn
+      ansible.builtin.debug:
+        msg: "Cert file: {{ cert_fn }}"
+
+    - name: Resolve path to privkey filename
+      ansible.builtin.stat:
+        path: "/etc/letsencrypt/live/{{ hostname_out.stdout }}/privkey.pem"
+      register: stat_out
+
+    - name: Defile privkey_fn
+      ansible.builtin.set_fact:
+        privkey_fn: "{{ stat_out.stat.lnk_source | default (stat_out.stat.path) }}"
+
+    - name: Print privkey_fn
+      ansible.builtin.debug:
+        msg: "Private key file: {{ privkey_fn }}"
+
+    - name: Resolve path to ca-bundle filename
+      ansible.builtin.stat:
+        path: "/etc/letsencrypt/live/{{ hostname_out.stdout }}/ca-bundle.pem"
+      register: stat_out
+
+    - name: Defile ca_bundle_fn
+      ansible.builtin.set_fact:
+        ca_bundle_fn: "{{ stat_out.stat.lnk_source | default (stat_out.stat.path) }}"
+
+    - name: Print ca_bundle_fn
+      ansible.builtin.debug:
+        msg: "CA bundle key file: {{ ca_bundle_fn }}"
+
+    - name: Install Satellite with Let's Encrypt certificates; wait for up to an hour to complete
+      ansible.builtin.command: >
+          satellite-installer --scenario satellite
+                              --foreman-initial-organization {{ satellite_organization }}
+                              --foreman-initial-location {{ satellite_location }}
+                              --foreman-initial-admin-username {{ satellite_username }}
+                              --foreman-initial-admin-password {{ satellite_password }}
+                              --certs-server-cert {{ cert_fn }}
+                              --certs-server-key {{ privkey_fn }}
+                              --certs-server-ca-cert {{ ca_bundle_fn }}
+      register: satellite_install_output
+      ignore_errors: yes
+      async: 3600
+      poll: 60
+      when: use_letsencrypt | bool
 
     - name: Print installation output
       ansible.builtin.debug:
         var: satellite_install_output
         verbosity: 1
+
+    - name: Print installation output if the play failed
+      ansible.builtin.debug:
+        var: satellite_install_output
+        verbosity: 1
+      when: satellite_install_output.failed
 
     - name: Check on installation and fail the play if the installation failed
       ansible.builtin.debug:

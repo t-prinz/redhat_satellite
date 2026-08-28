@@ -1,4 +1,3 @@
-# Ansible playbooks to manage Red Hat Satellite
 
 These playbooks can be used to install and configure a Satellite server.  If the Satellite server is already setup, the satellite_config.yml playbook can be used to make configuration changes.
 
@@ -130,3 +129,33 @@ These repository names are used in the Content View definition:
 * In version tag v3.0, the tasks that dealt with registering the Satellite server for content access were removed.  Consequently, the Satellite server must now be registered and have access to the Satellite repositories prior to using these playbooks.  The playbooks take care of enabling the proper repositories.
 
 * In version tag v3.1, support for Satellite 6.19 was added.
+
+* In version tag v3.2, support for using Let's Encrypt certificates was added.
+
+### Commands that may come in handy
+
+Check the validity of the certs before installing Satellite.  Note how the output says to use the actual filename and not a symbolic link.  The installation will fail if symbolic links are used.
+
+    katello-certs-check -c /etc/letsencrypt/live/FQDN/cert.pem -k /etc/letsencrypt/live/FQDN/privkey.pem -b /etc/letsencrypt/live/FQDN/ca-bundle.pem
+
+After the Satellite installation completes, check to make sure certificate was installed correctly.
+
+    curl --head https://FQDN
+
+Run the following commands after the certificates are renewed.
+
+    #!/bin/bash
+
+    # Rebuild the full CA bundle with the Root CA
+
+    cat /etc/letsencrypt/live/FQDN/fullchain.pem /etc/letsencrypt/isrgrootx1.pem > /etc/letsencrypt/live/FQDN/ca-bundle.pem
+
+    # Apply updated certificates to Satellite
+
+    satellite-installer --scenario satellite \
+       --certs-server-cert "/etc/letsencrypt/archive/FQDN/cert1.pem" \
+       --certs-server-key "/etc/letsencrypt/archive/FQDN/privkey1.pem" \
+       --certs-server-ca-cert "/etc/letsencrypt/live/FQDN/ca-bundle.pem" \
+       --certs-update-server \
+       --certs-update-server-ca \
+       --certs-update-all
